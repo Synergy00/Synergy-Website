@@ -67,20 +67,6 @@ export function ProblemStatementsSection() {
 
         {/* Search & Domain Filters */}
         <div className="space-y-4 mb-10">
-          {/* Search bar */}
-          <div className="max-w-md mx-auto">
-            <div className="relative">
-              <Search className="w-4 h-4 text-outline absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by PS ID (e.g. PS01), title, or tech stack..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 text-xs sm:text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-              />
-            </div>
-          </div>
-
           {/* Domain Category Filter Pills */}
           <div className="flex items-center justify-center gap-2 flex-wrap">
             {DOMAIN_CATEGORIES.map((cat) => (
@@ -112,18 +98,6 @@ export function ProblemStatementsSection() {
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-container/20 border border-primary/40 font-mono text-xs font-bold text-primary">
                     <span>{ps.id}</span>
                   </div>
-                  <Chip
-                    variant={
-                      ps.difficulty === "Beginner Friendly"
-                        ? "success"
-                        : ps.difficulty === "Intermediate"
-                        ? "amber"
-                        : "lavender"
-                    }
-                    size="sm"
-                  >
-                    {ps.difficulty}
-                  </Chip>
                 </div>
 
                 {/* Domain category */}

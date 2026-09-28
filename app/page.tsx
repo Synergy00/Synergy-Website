@@ -20,6 +20,7 @@ import {
   FileText,
   Clock,
   Lock,
+  Shield,
 } from "lucide-react";
 import { Navbar } from "@/components/shared/Navbar";
 import { AmbientGlow } from "@/components/shared/AmbientGlow";
@@ -76,6 +77,68 @@ export default function LandingPage() {
 
       {/* 1. HERO SECTION */}
       <section className="relative pt-36 pb-24 sm:pt-48 sm:pb-32 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center z-10">
+        
+        {/* Inverted Silver Sleek Arch */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150vw] max-w-[2000px] h-[850px] sm:h-[1200px] -z-10 pointer-events-none opacity-80">
+          <svg
+            viewBox="0 0 1440 1400"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full h-full"
+            preserveAspectRatio="none"
+          >
+            {/* Arch fill (sleeker, tapered edges, slightly thick bottom) */}
+            <path
+              d="M-200,0 Q720,1306 1640,0 Q720,1314 -200,0 Z"
+              fill="url(#silver-arch-gradient)"
+              className="drop-shadow-2xl"
+            />
+            {/* Glow effect */}
+            <path
+              d="M-200,0 Q720,1310 1640,0"
+              stroke="url(#silver-arch-glow)"
+              strokeWidth="8"
+              className="blur-xl opacity-60"
+            />
+            {/* Shine factor (Central bright spot/flare) */}
+            <ellipse
+              cx="720"
+              cy="1310"
+              rx="150"
+              ry="4"
+              fill="url(#shine-flare)"
+              className="blur-[2px]"
+            />
+            <ellipse
+              cx="720"
+              cy="1310"
+              rx="50"
+              ry="2"
+              fill="#ffffff"
+              className="blur-[1px]"
+            />
+            <defs>
+              <linearGradient id="silver-arch-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#475569" stopOpacity="0" />
+                <stop offset="25%" stopColor="#94a3b8" stopOpacity="0.4" />
+                <stop offset="50%" stopColor="#ffffff" stopOpacity="1" />
+                <stop offset="75%" stopColor="#94a3b8" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#475569" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="silver-arch-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#334155" stopOpacity="0" />
+                <stop offset="50%" stopColor="#e2e8f0" stopOpacity="1" />
+                <stop offset="100%" stopColor="#334155" stopOpacity="0" />
+              </linearGradient>
+              <radialGradient id="shine-flare" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+                <stop offset="50%" stopColor="#e2e8f0" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+          </svg>
+        </div>
+
         <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-outline-variant/50 bg-surface-container-lowest/30 backdrop-blur-sm mb-8">
           <span className="text-[10px] sm:text-xs font-semibold tracking-wider uppercase flex items-center gap-2">
             {isRegistrationClosed ? (
@@ -112,19 +175,26 @@ export default function LandingPage() {
         </div>
 
         {/* Primary CTA */}
-        <div className="flex items-center justify-center">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           {isRegistrationClosed ? (
-            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-surface-container-high/60 border border-outline-variant/40 text-outline cursor-not-allowed select-none shadow-sm backdrop-blur-md opacity-85">
-              <Lock className="w-4 h-4 text-error" />
-              <span className="text-sm font-headline font-semibold text-on-surface-variant">
-                Registrations Stopped
-              </span>
-            </div>
+            <Link href="/auth?tab=login" className="flex justify-center items-center h-[46px]">
+              <LiquidMetalButton label="Participant Login" />
+            </Link>
           ) : (
             <Link href="/auth?tab=register" className="flex justify-center items-center h-[46px]">
               <LiquidMetalButton label="Register Now" />
             </Link>
           )}
+          
+          <Link href="/admin/login" className="flex justify-center items-center h-[46px]">
+            <Button 
+              variant="secondary" 
+              size="lg" 
+              className="h-full px-8 rounded-full border border-outline-variant/30 bg-surface-container-high/40 backdrop-blur-sm hover:bg-surface-container-high transition-all text-on-surface"
+            >
+              <Shield className="w-4 h-4 mr-2 text-primary" /> Admin Portal
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -679,17 +749,21 @@ export default function LandingPage() {
             <span className="font-headline font-bold text-on-surface">
               PROTOHACK 2026
             </span>
-            <span>· Organized by SYNERGY Club</span>
+            <span>· Organized by SYNERGY AI Club</span>
           </div>
 
           <div className="flex items-center gap-6">
-            <a href="mailto:contact@synergyclub.org" className="hover:text-primary transition-colors">
-              Contact Organizers
+            <a href="mailto:synergy.srmrmp2026@gmail.com" className="hover:text-primary transition-colors">
+              Contact Organizers / Grievance
             </a>
             <span>·</span>
-            <span>Code of Conduct</span>
+            <Link href="/code-of-conduct" className="hover:text-primary transition-colors">
+              Code of Conduct
+            </Link>
             <span>·</span>
-            <span>Privacy Policy</span>
+            <Link href="/privacy" className="hover:text-primary transition-colors">
+              Privacy Policy
+            </Link>
           </div>
 
           <div>© 2026 SYNERGY. All rights reserved.</div>
