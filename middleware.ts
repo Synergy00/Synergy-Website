@@ -33,6 +33,19 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // 0. Deployment Separation Logic
+  const deploymentType = process.env.DEPLOYMENT_TYPE; // "public" or "admin"
+  
+  // If this is the public deployment, hide all admin routes
+  if (deploymentType === "public" && pathname.startsWith("/admin")) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+  
+  // If this is the admin deployment, redirect public traffic to the admin portal
+  if (deploymentType === "admin" && pathname === "/") {
+    return NextResponse.redirect(new URL("/admin/login", request.url));
+  }
+
   // 1. Admin Route Protection
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const adminSessionCookie = request.cookies.get("protohack_admin_session");
