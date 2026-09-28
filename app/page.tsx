@@ -185,16 +185,6 @@ export default function LandingPage() {
               <LiquidMetalButton label="Register Now" />
             </Link>
           )}
-          
-          <Link href="/admin/login" className="flex justify-center items-center h-[46px]">
-            <Button 
-              variant="secondary" 
-              size="lg" 
-              className="h-full px-8 rounded-full border border-outline-variant/30 bg-surface-container-high/40 backdrop-blur-sm hover:bg-surface-container-high transition-all text-on-surface"
-            >
-              <Shield className="w-4 h-4 mr-2 text-primary" /> Admin Portal
-            </Button>
-          </Link>
         </div>
       </section>
 
