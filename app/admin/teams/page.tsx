@@ -115,64 +115,7 @@ export default function AdminTeamsPage() {
 
         setTeams(formatted);
       } else {
-        // Fallback demo data
-        setTeams([
-          {
-            id: "team-1",
-            name: "ByteShift",
-            code: "PHT01-DWFW",
-            leadName: "Alex Chen",
-            status: "shortlisted",
-            createdAt: new Date().toISOString(),
-            members: [
-              {
-                id: "1",
-                fullName: "Alex Chen",
-                participantId: "PH26-01-0012",
-                college: "MIT",
-                role: "lead",
-              },
-              {
-                id: "2",
-                fullName: "Sarah Jenkins",
-                participantId: "PH26-01-0045",
-                college: "MIT",
-                role: "member",
-              },
-              {
-                id: "3",
-                fullName: "Devon Vance",
-                participantId: "PH26-01-0089",
-                college: "Stanford",
-                role: "member",
-              },
-            ],
-          },
-          {
-            id: "team-2",
-            name: "NeuralFlow",
-            code: "PHT02-K92X",
-            leadName: "Maya Lin",
-            status: "round1",
-            createdAt: new Date(Date.now() - 3600000).toISOString(),
-            members: [
-              {
-                id: "4",
-                fullName: "Maya Lin",
-                participantId: "PH26-01-0021",
-                college: "Berkeley",
-                role: "lead",
-              },
-              {
-                id: "5",
-                fullName: "Rohan Patel",
-                participantId: "PH26-01-0077",
-                college: "Berkeley",
-                role: "member",
-              },
-            ],
-          },
-        ]);
+        setTeams([]);
       }
     } catch (err) {
       console.error("Failed to load teams:", err);

@@ -56,7 +56,7 @@ export default function AdminEventControlsPage() {
   // Event Settings state
   const [settings, setSettings] = useState<EventSettings | null>(null);
   const [clocks, setClocks] = useState<ServerClock[]>(DEFAULT_SERVER_CLOCKS);
-  const [whatsappLink, setWhatsappLink] = useState("https://chat.whatsapp.com/demo-protohack-2026");
+  const [whatsappLink, setWhatsappLink] = useState("");
   const [driveWebhookUrl, setDriveWebhookUrl] = useState("");
   const [copiedWhatsApp, setCopiedWhatsApp] = useState(false);
   const [isSavingIntegrations, setIsSavingIntegrations] = useState(false);
@@ -91,7 +91,7 @@ export default function AdminEventControlsPage() {
       const data = await fetchEventSettings();
       setSettings(data);
       setClocks(data.server_clocks || DEFAULT_SERVER_CLOCKS);
-      setWhatsappLink(data.whatsapp_group_link || "https://chat.whatsapp.com/demo-protohack-2026");
+      setWhatsappLink(data.whatsapp_group_link || "");
       setDriveWebhookUrl(data.drive_upload_webhook_url || "");
       setRound1Unlocked(data.round1_unlocked ?? false);
       setRound2Open(data.round2_open ?? true);

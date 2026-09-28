@@ -99,43 +99,15 @@ export default function AdminShortlistingPage() {
             problemStatementId: t.problem_statement_id || "PS01",
             problemStatementTitle: t.problem_statement_title || "AI Campus Study & Peer Collaborative Copilot",
             problemStatementDomain: t.problem_statement_domain || "AI & Intelligent Systems",
-            pptUrl: "https://docs.google.com/presentation/d/1g1YQ91q3_demo_protohack_pitch_deck/preview",
-            targetUsers: "Undergrad students managing peer study sessions & campus project teams",
-            techStack: "Next.js 14, TypeScript, Supabase PostgreSQL, Tailwind CSS",
-            shortDesc: "Real-time collaborative campus workspace unifying problem matching, skill mapping, and hackathon team formations.",
+            pptUrl: t.ppt_url || null,
+            targetUsers: t.target_users || "No target users specified",
+            techStack: t.tech_stack || "No tech stack specified",
+            shortDesc: t.short_desc || "No description provided",
           };
         });
         setTeams(formatted);
       } else {
-        // Mock fallback teams
-        setTeams([
-          {
-            id: "team-1",
-            name: "Apex Innovators",
-            code: "APX-9281",
-            leadName: "Alex Chen",
-            memberCount: 3,
-            memberNames: "Alex Chen, Sarah Jenkins, Rohan Gupta",
-            status: "shortlisted",
-            pptUrl: "https://docs.google.com/presentation/d/e/2PACX-1vR_demo_protohack_deck/preview",
-            targetUsers: "Campus developers & designers building rapid prototypes",
-            techStack: "Next.js 14, React, Supabase, Tailwind",
-            shortDesc: "Campus dev-tool solving automated test fixture generation with local LLMs.",
-          },
-          {
-            id: "team-2",
-            name: "NeuralShift",
-            code: "NEU-4412",
-            leadName: "Priya Sharma",
-            memberCount: 2,
-            memberNames: "Priya Sharma, Aditya Verma",
-            status: "round1",
-            pptUrl: "https://docs.google.com/presentation/d/e/2PACX-1vR_demo_protohack_deck/preview",
-            targetUsers: "Healthcare workers tracking patient triage queues",
-            techStack: "React, Node.js, PostgreSQL",
-            shortDesc: "Low-latency triage management app for community health camps.",
-          },
-        ]);
+        setTeams([]);
       }
     } catch {
       setTeams([]);
