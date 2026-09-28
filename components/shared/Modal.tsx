@@ -58,7 +58,7 @@ export function Modal({
       {/* Modal Card */}
       <div
         className={cn(
-          "relative w-full rounded-2xl bg-surface-container/95 border border-outline-variant/40 shadow-2xl p-6 sm:p-8 z-10 animate-in zoom-in-95 duration-200",
+          "relative w-full rounded-2xl bg-surface-container/95 border border-outline-variant/40 shadow-2xl p-6 sm:p-8 z-10 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto",
           maxWidthClasses[maxWidth]
         )}
         role="dialog"

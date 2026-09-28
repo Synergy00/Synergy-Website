@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Zap, LayoutDashboard, Flag, Lock, LogOut } from "lucide-react";
+import { Zap, LayoutDashboard, Flag, Lock, LogOut, Menu, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   userProfile: { fullName: string; participantId: string } | null;
@@ -9,17 +10,60 @@ interface SidebarProps {
 }
 
 export function Sidebar({ userProfile, hasTeam, onLogout }: SidebarProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <aside className="w-64 h-screen border-r border-outline-variant/30 bg-surface-container-lowest/50 backdrop-blur-xl hidden md:flex flex-col fixed left-0 top-0 z-40">
-      {/* Brand */}
-      <div className="p-6 border-b border-outline-variant/30">
-        <Link href="/" className="flex items-center gap-2 group">
-          <Zap className="w-5 h-5 text-primary group-hover:text-amber-200 transition-colors" />
+    <>
+      {/* Mobile Hamburger Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl border-b border-outline-variant/30 z-40 flex items-center justify-between px-4">
+        <Link href="/" className="flex items-center gap-2">
+          <Zap className="w-5 h-5 text-primary" />
           <span className="font-headline font-bold tracking-widest text-on-surface">
             PROTOHACK
           </span>
         </Link>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 -mr-2 rounded-lg bg-transparent hover:bg-surface-container transition-colors text-on-surface"
+          aria-label="Toggle Menu"
+        >
+          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
       </div>
+
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      <aside 
+        className={cn(
+          "w-64 h-[100dvh] border-r border-outline-variant/30 bg-surface-container-lowest/95 md:bg-surface-container-lowest/50 backdrop-blur-xl flex flex-col fixed left-0 top-0 z-50 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none",
+          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        )}
+      >
+        {/* Brand (Desktop only) */}
+        <div className="p-6 border-b border-outline-variant/30 hidden md:block">
+          <Link href="/" className="flex items-center gap-2 group">
+            <Zap className="w-5 h-5 text-primary group-hover:text-amber-200 transition-colors" />
+            <span className="font-headline font-bold tracking-widest text-on-surface">
+              PROTOHACK
+            </span>
+          </Link>
+        </div>
+        
+        {/* Mobile close button inside drawer */}
+        <div className="p-4 border-b border-outline-variant/30 md:hidden flex justify-end">
+           <button
+            onClick={() => setIsOpen(false)}
+            className="p-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest transition-colors text-outline"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
       {/* Navigation */}
       <div className="flex-1 p-4 space-y-2">
@@ -82,5 +126,6 @@ export function Sidebar({ userProfile, hasTeam, onLogout }: SidebarProps) {
         </button>
       </div>
     </aside>
+    </>
   );
 }

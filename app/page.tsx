@@ -742,31 +742,58 @@ export default function LandingPage() {
       </section>
 
       {/* 11. FOOTER */}
-      <footer className="py-12 bg-surface-container-lowest border-t border-outline-variant/20 text-xs text-outline relative z-10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <footer className="py-16 bg-surface-container-lowest border-t border-outline-variant/20 text-outline relative z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center md:items-start justify-between gap-10">
+          
+          {/* Brand & Logo */}
+          <div className="flex flex-col items-center md:items-start gap-4">
+            <div className="flex items-center gap-3">
+              <div className="relative w-10 h-10 rounded-xl bg-surface-container-high/90 border border-primary/40 flex items-center justify-center p-1 shadow-inner">
+                <img
+                  src="/finalsynergy1.png"
+                  alt="SYNERGY Logo"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg font-headline font-bold tracking-widest text-on-surface">
+                  SYNERGY
+                </span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-primary">
+                  The AI Club
+                </span>
+              </div>
+            </div>
+            <p className="text-xs text-center md:text-left max-w-xs leading-relaxed">
+              Organizers of PROTOHACK 2026. Empowering students to build intelligent systems, break the clock, and push the boundaries of product design.
+            </p>
+          </div>
+
+          {/* Links Grid */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 sm:gap-16 text-xs text-center sm:text-left">
+            <div className="flex flex-col gap-3">
+              <span className="font-headline font-bold text-on-surface uppercase tracking-widest">Support</span>
+              <a href="mailto:synergy.srmrmp2026@gmail.com" className="hover:text-primary transition-colors">Contact / Grievance</a>
+              <Link href="/#faq" className="hover:text-primary transition-colors">FAQ</Link>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <span className="font-headline font-bold text-on-surface uppercase tracking-widest">Legal & Policy</span>
+              <Link href="/code-of-conduct" className="hover:text-primary transition-colors">Code of Conduct</Link>
+              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy & DPDP</Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-outline-variant/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-primary fill-primary" />
-            <span className="font-headline font-bold text-on-surface">
-              PROTOHACK 2026
-            </span>
-            <span>· Organized by SYNERGY AI Club</span>
+            <Zap className="w-3.5 h-3.5 text-primary" />
+            <span className="font-headline font-bold text-on-surface tracking-wider">PROTOHACK</span>
           </div>
-
-          <div className="flex items-center gap-6">
-            <a href="mailto:synergy.srmrmp2026@gmail.com" className="hover:text-primary transition-colors">
-              Contact Organizers / Grievance
-            </a>
-            <span>·</span>
-            <Link href="/code-of-conduct" className="hover:text-primary transition-colors">
-              Code of Conduct
-            </Link>
-            <span>·</span>
-            <Link href="/privacy" className="hover:text-primary transition-colors">
-              Privacy Policy
-            </Link>
-          </div>
-
-          <div>© 2026 SYNERGY. All rights reserved.</div>
+          <div>© {new Date().getFullYear()} SYNERGY AI Club. All rights reserved.</div>
         </div>
       </footer>
     </div>
