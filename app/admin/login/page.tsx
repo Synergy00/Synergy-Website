@@ -53,17 +53,6 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-surface flex flex-col justify-between relative overflow-hidden p-4">
       <AmbientGlow variant="admin" />
 
-      {/* Back button */}
-      <div className="max-w-md w-full mx-auto pt-4 relative z-10">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-headline font-bold uppercase tracking-wider text-outline hover:text-primary transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to event page</span>
-        </Link>
-      </div>
-
       <div className="flex items-center justify-center my-auto relative z-10">
         <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl bg-surface-container/95 border border-secondary/40 shadow-2xl backdrop-blur-xl">
           <div className="flex flex-col items-center text-center mb-6">
@@ -135,8 +124,8 @@ export default function AdminLoginPage() {
         </div>
       </div>
 
-      <div className="text-center text-[10px] text-outline py-2 relative z-10">
-        © 2026 SYNERGY Organizers.
+      <div className="text-center text-xs font-headline font-bold tracking-widest uppercase text-outline/40 py-6 relative z-10">
+        © {new Date().getFullYear()} SYNERGY AI Club. All rights reserved.
       </div>
     </div>
   );
