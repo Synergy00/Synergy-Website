@@ -1,0 +1,4 @@
+node_modules/
+.next/
+.env*
+code_of_conduct.md
