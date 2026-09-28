@@ -42,8 +42,19 @@ export async function middleware(request: NextRequest) {
   }
   
   // If this is the admin deployment, redirect public traffic to the admin portal
-  if (deploymentType === "admin" && pathname === "/") {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+  if (deploymentType === "admin") {
+    // List of public routes that should NOT be accessible on the admin portal
+    const isPublicRoute = 
+      pathname === "/" ||
+      pathname.startsWith("/auth") ||
+      pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/round-1") ||
+      pathname.startsWith("/round-2") ||
+      pathname.startsWith("/profile");
+
+    if (isPublicRoute) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
   }
 
   // 1. Admin Route Protection
