@@ -140,16 +140,14 @@ export default function CompleteProfilePage() {
         if (error.message.includes("unique") || error.message.includes("reg_no")) {
           setGlobalError("This Registration Number has already been registered. Please check and try again.");
         } else {
-          setSuccessId(customId);
+          setGlobalError(`Database error: ${error.message}`);
           return;
         }
       } else if (data) {
         setSuccessId(data.participant_id);
       }
-    } catch {
-      const randomOrder = Math.floor(1 + Math.random() * 20);
-      const fallbackId = formatParticipantId(formData.yearOfStudy, randomOrder);
-      setSuccessId(fallbackId);
+    } catch (err: any) {
+      setGlobalError(err?.message || "An unexpected error occurred during registration.");
     } finally {
       setLoading(false);
     }
