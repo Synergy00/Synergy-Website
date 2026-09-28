@@ -26,7 +26,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "PROTOHACK: The Product Build Challenge | SYNERGY 2026",
   description:
-    "Learn. Build. Break the Clock. The premier product build challenge for 1st & 2nd year students organized by SYNERGY.",
+    "Learn. Build. Break the Clock. The premier product build challenge for SRMIST students organized by SYNERGY.",
   icons: {
     icon: "/finalsynergy1.png",
   },

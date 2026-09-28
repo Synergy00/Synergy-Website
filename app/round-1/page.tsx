@@ -574,7 +574,7 @@ export default function Round1Page() {
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. 1st & 2nd year students navigating campus study groups and micro-carpooling"
+                    placeholder="e.g. SRMIST students navigating campus study groups and micro-carpooling"
                     value={targetUsers}
                     onChange={(e) => setTargetUsers(e.target.value)}
                     required

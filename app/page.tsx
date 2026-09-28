@@ -46,7 +46,7 @@ export default function LandingPage() {
   const faqList = [
     {
       q: "Who is eligible to participate in PROTOHACK?",
-      a: "PROTOHACK is exclusively designed for 1st- and 2nd-year undergraduate students across all branches and colleges. Beginners are completely welcome—the challenge is not intended to reward only students who already know how to code, but to provide a practical entry point into modern product development.",
+      a: "PROTOHACK is exclusively designed for SRMIST undergraduate students across all branches and years. Beginners are completely welcome—the challenge is not intended to reward only students who already know how to code, but to provide a practical entry point into modern product development.",
     },
     {
       q: "Can I participate solo or do I need a team?",
@@ -163,7 +163,7 @@ export default function LandingPage() {
         </h1>
 
         <p className="text-base sm:text-lg lg:text-xl text-outline max-w-3xl mx-auto font-body mb-8 leading-relaxed">
-          The premier 2-round rapid-build challenge by SYNERGY for 1st & 2nd-year students. Learn, build, break the clock, and win Direct Club Entry.
+          The premier 2-round rapid-build challenge by SYNERGY for SRMIST students. Learn, build, break the clock, and win Direct Club Entry.
         </p>
 
         {/* Live Registration & Server Clocks for Landing Hero */}
