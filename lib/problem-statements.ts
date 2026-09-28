@@ -308,3 +308,7 @@ export const OFFICIAL_PROBLEM_STATEMENTS: ProblemStatement[] = [
     suggestedTech: ["React Native / PWA", "Next.js", "Supabase Storage", "Google Maps API"],
   },
 ];
+
+export function getProblemStatementById(id: string): ProblemStatement | undefined {
+  return OFFICIAL_PROBLEM_STATEMENTS.find((ps) => ps.id === id);
+}
