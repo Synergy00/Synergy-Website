@@ -13,7 +13,6 @@ interface WhatsAppFloatingButtonProps {
 export function WhatsAppFloatingButton({ className, showBanner = true }: WhatsAppFloatingButtonProps) {
   const { settings } = useEventSettings();
   const [isHovered, setIsHovered] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(false);
 
   const whatsappUrl = settings.whatsapp_group_link || "https://chat.whatsapp.com";
 
@@ -26,45 +25,6 @@ export function WhatsAppFloatingButton({ className, showBanner = true }: WhatsAp
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Tooltip / Expanding Callout Pill */}
-      {!isDismissed && (
-        <div
-          className={cn(
-            "hidden sm:flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-surface-container/95 border border-[#25D366]/30 shadow-2xl backdrop-blur-xl transition-all duration-300",
-            isHovered ? "opacity-100 translate-x-0" : "opacity-90"
-          )}
-        >
-          <div className="flex flex-col text-left">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse" />
-              <span className="text-xs font-headline font-bold text-on-surface">
-                Join WhatsApp Group
-              </span>
-            </div>
-            <span className="text-[10px] text-outline font-body">
-              Live updates & rapid mentor support
-            </span>
-          </div>
-
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-2.5 py-1 rounded-lg bg-[#25D366]/20 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors text-[11px] font-bold font-headline flex items-center gap-1"
-          >
-            Join <ExternalLink className="w-3 h-3" />
-          </a>
-
-          <button
-            onClick={() => setIsDismissed(true)}
-            className="text-outline/60 hover:text-outline p-0.5 ml-1"
-            title="Dismiss hint"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
-      )}
-
       {/* Floating Action Button */}
       <a
         href={whatsappUrl}
