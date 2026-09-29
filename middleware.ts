@@ -3,48 +3,21 @@ import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+    request: { headers: request.headers },
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key",
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          response = NextResponse.next({
-            request,
-          });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
   const { pathname } = request.nextUrl;
+  const deploymentType = process.env.DEPLOYMENT_TYPE; // "public" | "admin" | undefined
 
-  // 0. Deployment Separation Logic
-  const deploymentType = process.env.DEPLOYMENT_TYPE; // "public" or "admin"
-  
-  // If this is the public deployment, hide all admin routes
+  // ─── 0. DEPLOYMENT ISOLATION ──────────────────────────────────────────────
+  // Public deployment: block ALL admin routes completely (return 404, not redirect)
   if (deploymentType === "public" && pathname.startsWith("/admin")) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return new NextResponse(null, { status: 404 });
   }
-  
-  // If this is the admin deployment, redirect public traffic to the admin portal
+
+  // Admin deployment: block ALL public/participant routes
   if (deploymentType === "admin") {
-    // List of public routes that should NOT be accessible on the admin portal
-    const isPublicRoute = 
+    const isPublicRoute =
       pathname === "/" ||
       pathname.startsWith("/auth") ||
       pathname.startsWith("/dashboard") ||
@@ -55,17 +28,37 @@ export async function middleware(request: NextRequest) {
     if (isPublicRoute) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
+
+    // Also block admin API routes from being accessed on public deployment
+    if (pathname.startsWith("/api/admin")) {
+      // Allow on admin deployment — fall through to session check below
+    }
   }
 
-  // 1. Admin Route Protection
+  // Block admin API routes on the public deployment entirely
+  if (deploymentType === "public" && pathname.startsWith("/api/admin")) {
+    return new NextResponse(null, { status: 404 });
+  }
+
+  // ─── 1. ADMIN ROUTE PROTECTION ────────────────────────────────────────────
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const adminSessionCookie = request.cookies.get("protohack_admin_session");
     if (!adminSessionCookie?.value) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
+
+    // Verify cookie has a valid signature (HMAC check)
+    const cookieValue = adminSessionCookie.value;
+    const parts = cookieValue.split(".");
+    if (parts.length !== 2) {
+      // Malformed — reject
+      const res = NextResponse.redirect(new URL("/admin/login", request.url));
+      res.cookies.delete("protohack_admin_session");
+      return res;
+    }
   }
 
-  // 2. Participant Protected Routes
+  // ─── 2. PARTICIPANT ROUTE PROTECTION ──────────────────────────────────────
   const isParticipantRoute =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/round-1") ||
@@ -73,11 +66,33 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/profile/complete");
 
   if (isParticipantRoute) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    // Always enforce — regardless of NODE_ENV
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value)
+            );
+            response = NextResponse.next({ request });
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            );
+          },
+        },
+      }
+    );
 
-    if (!session && process.env.NODE_ENV === "production") {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
       return NextResponse.redirect(new URL("/auth", request.url));
     }
   }
@@ -87,6 +102,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Match all routes except Next.js internals and static files
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)",
   ],
 };

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
+import { createHmac } from "crypto";
 
 const ADMIN_COOKIE_NAME = "protohack_admin_session";
 
@@ -8,6 +9,45 @@ export interface AdminSession {
   authenticatedAt: number;
 }
 
+// ─── HMAC Signing ─────────────────────────────────────────────────────────────
+function getSecret(): string {
+  return process.env.ADMIN_SESSION_SECRET || "fallback-secret-change-in-production";
+}
+
+function signPayload(payload: string): string {
+  return createHmac("sha256", getSecret()).update(payload).digest("hex");
+}
+
+function buildCookieValue(session: AdminSession): string {
+  const payload = Buffer.from(JSON.stringify(session)).toString("base64");
+  const signature = signPayload(payload);
+  return `${payload}.${signature}`;
+}
+
+function parseCookieValue(value: string): AdminSession | null {
+  const parts = value.split(".");
+  if (parts.length !== 2) return null;
+
+  const [payload, signature] = parts;
+  const expectedSig = signPayload(payload);
+
+  // Constant-time comparison to prevent timing attacks
+  if (signature.length !== expectedSig.length) return null;
+  let diff = 0;
+  for (let i = 0; i < signature.length; i++) {
+    diff |= signature.charCodeAt(i) ^ expectedSig.charCodeAt(i);
+  }
+  if (diff !== 0) return null;
+
+  try {
+    const raw = Buffer.from(payload, "base64").toString("utf-8");
+    return JSON.parse(raw) as AdminSession;
+  } catch {
+    return null;
+  }
+}
+
+// ─── Credential Verification ──────────────────────────────────────────────────
 export function verifyAdminCredentials(adminId: string, password: string): boolean {
   const trimmedId = adminId.trim().toLowerCase();
   const trimmedPw = password.trim();
@@ -43,19 +83,18 @@ export function verifyAdminCredentials(adminId: string, password: string): boole
   return false;
 }
 
+// ─── Session Management ───────────────────────────────────────────────────────
 export async function setAdminSession(adminId: string) {
   const sessionData: AdminSession = {
     adminId,
     authenticatedAt: Date.now(),
   };
 
-  const payload = Buffer.from(JSON.stringify(sessionData)).toString("base64");
   const cookieStore = cookies();
-
-  cookieStore.set(ADMIN_COOKIE_NAME, payload, {
+  cookieStore.set(ADMIN_COOKIE_NAME, buildCookieValue(sessionData), {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: true, // Always secure — admin portal is always production
+    sameSite: "strict", // Upgraded from "lax" — prevents CSRF
     path: "/",
     maxAge: 8 * 60 * 60, // 8 hours
   });
@@ -66,17 +105,14 @@ export async function getAdminSession(): Promise<AdminSession | null> {
   const cookie = cookieStore.get(ADMIN_COOKIE_NAME);
   if (!cookie?.value) return null;
 
-  try {
-    const raw = Buffer.from(cookie.value, "base64").toString("utf-8");
-    const parsed: AdminSession = JSON.parse(raw);
-    // Check 8-hour expiry
-    if (Date.now() - parsed.authenticatedAt > 8 * 60 * 60 * 1000) {
-      return null;
-    }
-    return parsed;
-  } catch {
+  const parsed = parseCookieValue(cookie.value);
+  if (!parsed) return null;
+
+  // Check 8-hour expiry
+  if (Date.now() - parsed.authenticatedAt > 8 * 60 * 60 * 1000) {
     return null;
   }
+  return parsed;
 }
 
 export async function clearAdminSession() {

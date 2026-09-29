@@ -3,6 +3,11 @@ import { getAdminSession } from "@/lib/auth/adminSession";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST() {
+  // Block this endpoint entirely on the public deployment
+  if (process.env.DEPLOYMENT_TYPE === "public") {
+    return new NextResponse(null, { status: 404 });
+  }
+
   try {
     const session = await getAdminSession();
     if (!session) {

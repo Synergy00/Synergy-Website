@@ -63,8 +63,12 @@ export default function Round1Page() {
   useEffect(() => {
     async function checkAccess() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const userId = session?.user?.id || "demo-user-id";
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push("/auth");
+          return;
+        }
+        const userId = user.id;
 
         // Fetch settings
         const { data: settings } = await supabase
@@ -76,7 +80,7 @@ export default function Round1Page() {
         if (settings) {
           setIsUnlocked(settings.round1_unlocked);
         } else {
-          setIsUnlocked(true);
+          setIsUnlocked(false);
         }
 
         // Fetch profile & team

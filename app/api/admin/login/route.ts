@@ -5,6 +5,11 @@ import { verifyAdminCredentials, setAdminSession } from "@/lib/auth/adminSession
 const loginAttempts = new Map<string, { count: number; lockedUntil: number }>();
 
 export async function POST(req: NextRequest) {
+  // Block this endpoint entirely on the public deployment
+  if (process.env.DEPLOYMENT_TYPE === "public") {
+    return new NextResponse(null, { status: 404 });
+  }
+
   try {
     const ip = req.headers.get("x-forwarded-for") || "local_ip";
     const now = Date.now();

@@ -44,8 +44,12 @@ export default function Round2Page() {
   useEffect(() => {
     async function checkRound2() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const userId = session?.user?.id || "demo-user-id";
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push("/auth");
+          return;
+        }
+        const userId = user.id;
 
         // Fetch settings
         const { data: settings } = await supabase

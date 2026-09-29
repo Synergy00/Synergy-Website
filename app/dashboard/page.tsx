@@ -131,11 +131,15 @@ export default function DashboardPage() {
     async function loadDashboard() {
       setLoading(true);
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        // Demo fallback user if running locally without Supabase credentials
-        const currentUserId = session?.user?.id || "demo-user-id";
-        const currentUserEmail = session?.user?.email || "alex.chen@university.edu";
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+          router.push("/auth");
+          return;
+        }
+
+        const currentUserId = user.id;
+        const currentUserEmail = user.email || "";
 
         // Fetch profile
         const { data: profileData } = await supabase
@@ -144,23 +148,15 @@ export default function DashboardPage() {
           .eq("id", currentUserId)
           .single();
 
-        if (!profileData && !session) {
-          // Mock initial demo state
-          setProfile({
-            id: currentUserId,
-            fullName: "Alex Chen",
-            participantId: "PH26-00124",
-            email: currentUserEmail,
-          });
-        } else if (!profileData && session) {
+        if (!profileData) {
           router.push("/profile/complete");
           return;
-        } else if (profileData) {
+        } else {
           setProfile({
             id: profileData.id,
             fullName: profileData.full_name,
             participantId: profileData.participant_id,
-            email: profileData.email,
+            email: profileData.email || currentUserEmail,
           });
         }
 
