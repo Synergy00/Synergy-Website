@@ -165,7 +165,6 @@ export async function fetchEventSettings(): Promise<EventSettings> {
 export async function updateEventSettings(settings: Partial<EventSettings>): Promise<EventSettings> {
   const updated = saveLocalSettings(settings);
   try {
-    const supabase = createClient();
     const payload: Record<string, any> = { id: 1 };
     if (settings.countdown_label !== undefined) payload.countdown_label = settings.countdown_label;
     if (settings.countdown_target !== undefined) payload.countdown_target = settings.countdown_target;
@@ -178,7 +177,16 @@ export async function updateEventSettings(settings: Partial<EventSettings>): Pro
     if (settings.whatsapp_group_link !== undefined) payload.whatsapp_group_link = settings.whatsapp_group_link;
     if (settings.drive_upload_webhook_url !== undefined) payload.drive_upload_webhook_url = settings.drive_upload_webhook_url;
 
-    await supabase.from("event_settings").upsert(payload);
+    const response = await fetch("/api/admin/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || "Failed to update settings in database");
+    }
   } catch (err) {
     console.warn("Could not persist event_settings to Supabase, updated locally:", err);
   }
