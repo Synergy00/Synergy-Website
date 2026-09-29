@@ -165,7 +165,7 @@ export default function DashboardPage() {
           .from("team_members")
           .select("team_id, role")
           .eq("profile_id", currentUserId)
-          .single();
+          .maybeSingle();
 
         if (membership) {
           const { data: teamData } = await supabase
@@ -281,7 +281,7 @@ export default function DashboardPage() {
       
       const { count } = await supabase
         .from("teams")
-        .select("*", { count: "exact", head: true });
+        .select("id", { count: "exact", head: true });
 
       const teamNum = (count || 0) + 1;
       const code = generateTeamCode(teamNum);
@@ -307,9 +307,10 @@ export default function DashboardPage() {
           setCreateLoading(false);
           return;
         }
+        throw new Error(teamError.message || "Database rejected team insertion.");
       }
 
-      if (!newTeam) throw new Error("Failed to insert team.");
+      if (!newTeam) throw new Error("Failed to insert team (no data returned).");
       const teamId = newTeam.id;
 
       // 2. Insert Lead & Added Members
