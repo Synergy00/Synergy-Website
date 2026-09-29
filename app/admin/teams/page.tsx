@@ -142,8 +142,16 @@ export default function AdminTeamsPage() {
     setIsDeleting(true);
 
     try {
-      await supabase.from("team_members").delete().eq("team_id", toDelete.id);
-      await supabase.from("teams").delete().eq("id", toDelete.id);
+      const response = await fetch(`/api/admin/teams/${toDelete.id}`, {
+        method: "DELETE",
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error("Failed to disband team:", data.error);
+        return;
+      }
 
       setTeams((prev) => prev.filter((t) => t.id !== toDelete.id));
       setToDelete(null);
