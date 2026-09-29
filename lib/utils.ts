@@ -19,17 +19,14 @@ export function formatParticipantId(yearOfStudy: number | string, sequence: numb
 }
 
 /**
- * Format: PHTNN-XXXX
- * PHT = ProtoHack Team
- * NN = Team sequential number (01, 02, ...)
- * XXXX = Unique 4-character uppercase alphanumeric code (e.g. DWFW)
+ * Format: XXXXXX
+ * 6-character uppercase alphanumeric unique code
  */
 export function generateTeamCode(teamNumber: number = 1): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let randomSuffix = "";
-  for (let i = 0; i < 4; i++) {
-    randomSuffix += chars.charAt(Math.floor(Math.random() * chars.length));
+  let randomCode = "";
+  for (let i = 0; i < 6; i++) {
+    randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  const teamNumPad = (teamNumber % 100).toString().padStart(2, "0");
-  return `PHT${teamNumPad}-${randomSuffix}`;
+  return randomCode;
 }
