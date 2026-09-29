@@ -114,7 +114,7 @@ export default function AdminLoginPage() {
               className="w-full mt-2"
               isLoading={loading}
             >
-              Sign In to Admin Portal
+              Sign In
             </Button>
           </form>
 
