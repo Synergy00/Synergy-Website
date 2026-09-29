@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, ArrowLeft, Send, FileText, CheckCircle2, AlertCircle, Terminal } from "lucide-react";
 import { AmbientGlow } from "@/components/shared/AmbientGlow";
-import { Navbar } from "@/components/shared/Navbar";
+import { Sidebar } from "@/components/shared/Sidebar";
 import { Button } from "@/components/shared/Button";
 import { Input } from "@/components/shared/Input";
 import { createClient } from "@/lib/supabase/client";
@@ -18,6 +18,7 @@ export default function Round1Page() {
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [round1Unlocked, setRound1Unlocked] = useState(false);
+  const [round2Unlocked, setRound2Unlocked] = useState(false);
   const [userProfile, setUserProfile] = useState<{ fullName: string; participantId: string } | null>(null);
   const [team, setTeam] = useState<any>(null);
   const [activePs, setActivePs] = useState<ProblemStatement | null>(null);
@@ -42,8 +43,9 @@ export default function Round1Page() {
           return;
         }
 
-        const { data: settings } = await supabase.from("event_settings").select("round1_unlocked").eq("id", 1).single();
+        const { data: settings } = await supabase.from("event_settings").select("round1_unlocked, round2_open").eq("id", 1).single();
         setRound1Unlocked(settings?.round1_unlocked || false);
+        setRound2Unlocked(settings?.round2_open || false);
 
         const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
         if (profile) {
@@ -102,11 +104,22 @@ export default function Round1Page() {
   }
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface relative overflow-x-hidden">
+    <div className="min-h-screen bg-surface text-on-surface relative overflow-x-hidden flex">
       <AmbientGlow variant="full" />
-      <Navbar variant="participant" userProfile={userProfile} onLogout={handleLogout} />
+      <Sidebar
+        hasTeam={!!team}
+        teamStatus={team?.status}
+        round1Unlocked={round1Unlocked}
+        round2Unlocked={round2Unlocked}
+        userProfile={
+          userProfile
+            ? { fullName: userProfile.fullName, participantId: userProfile.participantId }
+            : null
+        }
+        onLogout={handleLogout}
+      />
 
-      <main className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto relative z-10">
+      <main className="flex-1 md:ml-64 pt-24 md:pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto relative z-10 min-h-screen overflow-y-auto">
         {!round1Unlocked ? (
           <div className="max-w-md mx-auto p-8 rounded-2xl bg-surface-container/90 border border-outline-variant/30 text-center backdrop-blur-xl animate-in zoom-in-95">
             <div className="w-16 h-16 rounded-full bg-secondary-container/20 border border-secondary/30 flex items-center justify-center text-secondary mx-auto mb-4">

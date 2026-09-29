@@ -21,7 +21,7 @@ import {
   HelpCircle
 } from "lucide-react";
 import { AmbientGlow } from "@/components/shared/AmbientGlow";
-import { Navbar } from "@/components/shared/Navbar";
+import { Sidebar } from "@/components/shared/Sidebar";
 import { Button } from "@/components/shared/Button";
 import { Chip } from "@/components/shared/Chip";
 import { ServerClockRenderer } from "@/components/shared/ServerClockRenderer";
@@ -34,7 +34,9 @@ export default function Round2Page() {
   const [loading, setLoading] = useState(true);
   const [isShortlisted, setIsShortlisted] = useState(false);
   const [round2Open, setRound2Open] = useState(true);
+  const [round1Unlocked, setRound1Unlocked] = useState(false);
   const [userProfile, setUserProfile] = useState<{ fullName: string; participantId: string } | null>(null);
+  const [team, setTeam] = useState<any>(null);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -54,12 +56,13 @@ export default function Round2Page() {
         // Fetch settings
         const { data: settings } = await supabase
           .from("event_settings")
-          .select("round2_open")
+          .select("round2_open, round1_unlocked")
           .eq("id", 1)
           .single();
 
         if (settings) {
           setRound2Open(settings.round2_open);
+          setRound1Unlocked(settings.round1_unlocked);
         }
 
         // Fetch profile
@@ -76,15 +79,19 @@ export default function Round2Page() {
           });
         }
 
-        // Fetch team status — check if user is in a shortlisted team
         const { data: membership } = await supabase
           .from("team_members")
-          .select("team_id, teams(status)")
+          .select("team_id, teams(*)")
           .eq("user_id", userId)
           .maybeSingle();
 
-        if (membership && (membership as any).teams?.status === "shortlisted") {
-          setIsShortlisted(true);
+        if (membership && membership.teams) {
+          setTeam(membership.teams);
+          if ((membership as any).teams?.status === "shortlisted") {
+            setIsShortlisted(true);
+          } else {
+            setIsShortlisted(false);
+          }
         } else {
           setIsShortlisted(false);
         }
@@ -108,11 +115,22 @@ export default function Round2Page() {
   const isUnlocked = isShortlisted && round2Open;
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface relative overflow-x-hidden">
+    <div className="min-h-screen bg-surface text-on-surface relative overflow-x-hidden flex">
       <AmbientGlow variant="full" />
-      <Navbar variant="participant" userProfile={userProfile} onLogout={handleLogout} />
+      <Sidebar
+        hasTeam={!!team}
+        teamStatus={team?.status}
+        round1Unlocked={round1Unlocked}
+        round2Unlocked={round2Open}
+        userProfile={
+          userProfile
+            ? { fullName: userProfile.fullName, participantId: userProfile.participantId }
+            : null
+        }
+        onLogout={handleLogout}
+      />
 
-      <main className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto relative z-10">
+      <main className="flex-1 md:ml-64 pt-24 md:pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto relative z-10 min-h-screen overflow-y-auto">
         {!isUnlocked ? (
           /* Locked State */
           <div className="max-w-md mx-auto p-8 rounded-2xl bg-surface-container/90 border border-outline-variant/30 text-center backdrop-blur-xl animate-in zoom-in-95">

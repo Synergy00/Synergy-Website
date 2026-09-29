@@ -61,6 +61,7 @@ interface TeamData {
   problemStatementId?: string;
   problemStatementTitle?: string;
   problemStatementDomain?: string;
+  is_locked?: boolean;
   members: TeamMember[];
 }
 
@@ -199,6 +200,7 @@ export default function DashboardPage() {
               problemStatementId: activePs.id,
               problemStatementTitle: activePs.title,
               problemStatementDomain: activePs.domain,
+              is_locked: teamData.is_locked || false,
               members: mappedMembers,
             });
           }
@@ -372,16 +374,20 @@ export default function DashboardPage() {
         try {
           const { data: teamFound } = await supabase
             .from("teams")
-            .select("name, lead_id, profiles!teams_lead_id_fkey(full_name)")
+            .select("name, lead_id, is_locked, profiles!teams_lead_id_fkey(full_name)")
             .eq("code", cleanCode)
             .single();
 
           if (teamFound) {
-            setJoinPreview({
-              name: teamFound.name,
-              leadName: (teamFound as any).profiles?.full_name || "Team Lead",
-              memberCount: 2,
-            });
+            if (teamFound.is_locked) {
+              setJoinError("This team has been locked by its leader and is not accepting new members.");
+            } else {
+              setJoinPreview({
+                name: teamFound.name,
+                leadName: (teamFound as any).profiles?.full_name || "Team Lead",
+                memberCount: 2,
+              });
+            }
           } else {
             setJoinError("Invalid team code. Please check with your team lead.");
           }
@@ -409,12 +415,16 @@ export default function DashboardPage() {
       // Find the team id
       const { data: teamData, error: teamErr } = await supabase
         .from("teams")
-        .select("id")
+        .select("id, is_locked")
         .eq("code", joinCode.toUpperCase())
         .single();
         
       if (teamErr || !teamData) {
          throw new Error("Team not found");
+      }
+
+      if (teamData.is_locked) {
+         throw new Error("This team has been locked by its leader and is not accepting new members.");
       }
 
       // Insert membership
@@ -558,6 +568,7 @@ export default function DashboardPage() {
             globalSettings={globalSettings}
             copyCode={copyCode}
             copiedCode={copiedCode}
+            currentUserId={profile?.id || ""}
           />
         )}
       </main>

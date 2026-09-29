@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Check, Copy, Crown, Users, Terminal, ArrowRight, MessageCircle, ExternalLink } from "lucide-react";
+import { Check, Copy, Crown, Users, Terminal, ArrowRight, MessageCircle, ExternalLink, Lock } from "lucide-react";
 import { CountdownTimer } from "@/components/shared/CountdownTimer";
 import { Button } from "@/components/shared/Button";
 import { Chip } from "@/components/shared/Chip";
@@ -23,6 +23,7 @@ interface TeamData {
   problemStatementId?: string;
   problemStatementTitle?: string;
   problemStatementDomain?: string;
+  is_locked?: boolean;
   members: TeamMember[];
 }
 
@@ -38,6 +39,7 @@ interface TeamStatusProps {
   };
   copyCode: (code: string) => void;
   copiedCode: boolean;
+  currentUserId: string;
 }
 
 export function TeamStatus({
@@ -46,7 +48,29 @@ export function TeamStatus({
   globalSettings,
   copyCode,
   copiedCode,
+  currentUserId,
 }: TeamStatusProps) {
+  const [locking, setLocking] = useState(false);
+
+  const handleLockTeam = async () => {
+    if (!confirm("Are you sure you want to lock the team? No further members can be added after locking.")) return;
+    setLocking(true);
+    try {
+      const res = await fetch("/api/teams/lock", { method: "POST" });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to lock team");
+      }
+      window.location.reload();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLocking(false);
+    }
+  };
+
+  const isLead = team.members.find(m => m.id === currentUserId)?.role === "lead";
+
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Hero Countdown Card */}
@@ -88,6 +112,23 @@ export function TeamStatus({
                 )}
               </button>
             </div>
+            {isLead && !team.is_locked && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleLockTeam}
+                disabled={locking}
+                className="ml-2"
+                leftIcon={<Lock className="w-4 h-4" />}
+              >
+                {locking ? "Locking..." : "Lock Team"}
+              </Button>
+            )}
+            {team.is_locked && (
+              <Chip variant="lavender" size="sm" className="ml-2">
+                <Lock className="w-3 h-3 mr-1" /> Locked
+              </Chip>
+            )}
           </div>
         </div>
 
