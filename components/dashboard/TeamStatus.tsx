@@ -164,11 +164,13 @@ export function TeamStatus({
                 </div>
               </div>
             </div>
+            {/* TODO: Uncomment when ready to accept submissions
             <Link href="/round-1">
               <Button variant="primary" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
                 Open Round 1 Build
               </Button>
             </Link>
+            */}
           </div>
         </div>
       </div>
