@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import {
   Users,
   Search,
@@ -38,6 +39,7 @@ interface ParticipantRecord {
 
 export default function AdminParticipantsPage() {
   const supabase = createClient();
+  const router = useRouter();
   const [participants, setParticipants] = useState<ParticipantRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -105,6 +107,7 @@ export default function AdminParticipantsPage() {
       setParticipants([]);
     } finally {
       setLoading(false);
+      router.refresh(); // Clear Next.js router cache to ensure fresh data
     }
   };
 

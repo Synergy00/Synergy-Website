@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Users,
   Search,
@@ -47,6 +48,7 @@ interface TeamRecord {
 
 export default function AdminTeamsPage() {
   const supabase = createClient();
+  const router = useRouter();
   const [teams, setTeams] = useState<TeamRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -121,6 +123,7 @@ export default function AdminTeamsPage() {
       console.error("Failed to load teams:", err);
     } finally {
       setLoading(false);
+      router.refresh();
     }
   };
 

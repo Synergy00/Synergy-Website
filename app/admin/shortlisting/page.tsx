@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import {
   Trophy,
   Search,
@@ -43,6 +44,7 @@ interface ShortlistTeam {
 
 export default function AdminShortlistingPage() {
   const supabase = createClient();
+  const router = useRouter();
   const [teams, setTeams] = useState<ShortlistTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -113,6 +115,7 @@ export default function AdminShortlistingPage() {
       setTeams([]);
     } finally {
       setLoading(false);
+      router.refresh();
     }
   };
 
