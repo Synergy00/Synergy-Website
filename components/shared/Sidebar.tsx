@@ -6,10 +6,13 @@ import { cn } from "@/lib/utils";
 interface SidebarProps {
   userProfile: { fullName: string; participantId: string } | null;
   hasTeam: boolean;
+  teamStatus?: "round1" | "shortlisted";
+  round1Unlocked?: boolean;
+  round2Unlocked?: boolean;
   onLogout: () => void;
 }
 
-export function Sidebar({ userProfile, hasTeam, onLogout }: SidebarProps) {
+export function Sidebar({ userProfile, hasTeam, teamStatus, round1Unlocked, round2Unlocked, onLogout }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -71,20 +74,30 @@ export function Sidebar({ userProfile, hasTeam, onLogout }: SidebarProps) {
           Dashboard
         </div>
 
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary-container/20 text-primary font-semibold transition-colors">
+        <Link href="/dashboard" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary-container/20 text-primary font-semibold transition-colors hover:bg-primary-container/30">
           <LayoutDashboard className="w-5 h-5" />
           <span>Overview</span>
-        </button>
+        </Link>
 
         <div className="text-xs font-headline font-bold uppercase tracking-wider text-outline mt-8 mb-4 px-3">
           Event Stages
         </div>
 
         {hasTeam ? (
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:bg-surface-container transition-colors">
-            <Flag className="w-5 h-5 text-success" />
-            <span>Round 1: Build</span>
-          </button>
+          round1Unlocked ? (
+            <Link href="/round-1" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:bg-surface-container transition-colors">
+              <Flag className="w-5 h-5 text-success" />
+              <span>Round 1: Build</span>
+            </Link>
+          ) : (
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-outline opacity-50 cursor-not-allowed">
+              <Lock className="w-5 h-5" />
+              <div className="flex flex-col items-start">
+                <span>Round 1: Build</span>
+                <span className="text-[10px] text-primary">Locked by Admin</span>
+              </div>
+            </button>
+          )
         ) : (
           <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-outline opacity-50 cursor-not-allowed">
             <Lock className="w-5 h-5" />
@@ -95,10 +108,24 @@ export function Sidebar({ userProfile, hasTeam, onLogout }: SidebarProps) {
           </button>
         )}
 
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-outline opacity-50 cursor-not-allowed mt-2">
-          <Lock className="w-5 h-5" />
-          <span>Round 2: Finale</span>
-        </button>
+        {hasTeam && teamStatus === "shortlisted" && round2Unlocked ? (
+          <Link href="/round-2" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:bg-surface-container transition-colors mt-2">
+            <Trophy className="w-5 h-5 text-amber-500" />
+            <span>Round 2: Finale</span>
+          </Link>
+        ) : (
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-outline opacity-50 cursor-not-allowed mt-2">
+            <Lock className="w-5 h-5" />
+            <div className="flex flex-col items-start">
+              <span>Round 2: Finale</span>
+              {!round2Unlocked ? (
+                <span className="text-[10px] text-primary">Locked by Admin</span>
+              ) : teamStatus !== "shortlisted" ? (
+                <span className="text-[10px] text-error">Not shortlisted</span>
+              ) : null}
+            </div>
+          </button>
+        )}
       </div>
 
       {/* User Profile & Logout */}

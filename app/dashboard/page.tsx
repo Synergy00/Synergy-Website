@@ -469,6 +469,9 @@ export default function DashboardPage() {
       <AmbientGlow variant="full" />
       <Sidebar
         hasTeam={!!team}
+        teamStatus={team?.status}
+        round1Unlocked={eventSettings.round1Unlocked}
+        round2Unlocked={eventSettings.round2Open}
         userProfile={
           profile
             ? { fullName: profile.fullName, participantId: profile.participantId }
@@ -499,10 +502,10 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {team && (
+          {team && team.status === "shortlisted" && (
             <div className="flex items-center gap-2">
-              <Chip variant={team.status === "shortlisted" ? "amber" : "neutral"} pulse={team.status === "shortlisted"}>
-                {team.status === "shortlisted" ? "Shortlisted for Round 2 🎉" : "Round 1 Active"}
+              <Chip variant="amber" pulse>
+                Shortlisted for Round 2 🎉
               </Chip>
             </div>
           )}
