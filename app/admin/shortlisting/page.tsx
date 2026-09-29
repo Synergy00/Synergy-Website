@@ -71,8 +71,6 @@ export default function AdminShortlistingPage() {
           code,
           status,
           problem_statement_id,
-          problem_statement_title,
-          problem_statement_domain,
           team_members (
             role,
             profiles (
@@ -98,13 +96,13 @@ export default function AdminShortlistingPage() {
             memberCount: membersList.length,
             memberNames: membersList.join(", ") || "No members",
             status: t.status || "round1",
-            problemStatementId: t.problem_statement_id || null,
-            problemStatementTitle: t.problem_statement_title || "No problem statement selected",
-            problemStatementDomain: t.problem_statement_domain || "Uncategorized",
-            pptUrl: t.ppt_url || null,
-            targetUsers: t.target_users || "No target users specified",
-            techStack: t.tech_stack || "No tech stack specified",
-            shortDesc: t.short_desc || "No description provided",
+            problemStatementId: t.problem_statement_id || undefined,
+            problemStatementTitle: "No problem statement selected",
+            problemStatementDomain: "Uncategorized",
+            pptUrl: undefined,
+            targetUsers: "No target users specified",
+            techStack: "No tech stack specified",
+            shortDesc: "No description provided",
           };
         });
         setTeams(formatted);
