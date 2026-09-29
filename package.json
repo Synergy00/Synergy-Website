@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev:public": "cross-env DEPLOYMENT_TYPE=public next dev -p 3000",
+    "dev:admin": "cross-env DEPLOYMENT_TYPE=admin next dev -p 3001",
+    "dev": "concurrently -c \"cyan,magenta\" -n \"PUBLIC,ADMIN\" \"npm run dev:public\" \"npm run dev:admin\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -30,6 +32,8 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^10.0.5",
+    "cross-env": "^10.1.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3"
