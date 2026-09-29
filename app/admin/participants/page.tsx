@@ -200,21 +200,24 @@ export default function AdminParticipantsPage() {
 
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  // Safe Removal logic in Supabase
+  // Safe Removal logic via Admin API (Hard Delete from Supabase Auth)
   const handleConfirmDelete = async () => {
     if (!toDelete) return;
     setIsDeleting(true);
     setDeleteError(null);
 
     try {
-      // 1. Remove team memberships first
-      await supabase.from("team_members").delete().eq("profile_id", toDelete.id);
-      // 2. Delete the profile record
-      const { error } = await supabase.from("profiles").delete().eq("id", toDelete.id);
-      if (error) {
-        setDeleteError(error.message);
+      const response = await fetch(`/api/admin/users/${toDelete.id}`, {
+        method: "DELETE",
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setDeleteError(data.error || "Failed to delete user.");
         return;
       }
+      
       setParticipants((prev) => prev.filter((p) => p.id !== toDelete.id));
       setToDelete(null);
     } catch (err: any) {
