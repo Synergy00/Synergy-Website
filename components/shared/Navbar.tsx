@@ -150,12 +150,7 @@ export function Navbar({ variant = "landing", userProfile, onLogout }: NavbarPro
             >
               Dashboard
             </Link>
-            <Link
-              href="/round-1"
-              className="text-xs font-headline font-semibold uppercase tracking-wider text-outline hover:text-on-surface px-3.5 py-1.5 rounded-full transition-colors"
-            >
-              Round 1
-            </Link>
+
             <Link
               href="/round-2"
               className="text-xs font-headline font-semibold uppercase tracking-wider text-outline hover:text-on-surface px-3.5 py-1.5 rounded-full transition-colors"

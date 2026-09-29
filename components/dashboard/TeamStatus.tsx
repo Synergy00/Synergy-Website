@@ -144,27 +144,7 @@ export function TeamStatus({
             ))}
           </div>
 
-          {/* Round 1 Details Link */}
-          <div className="mt-6 p-4 rounded-xl bg-surface-container-lowest/90 border border-primary/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-primary-container/20 text-primary shrink-0 mt-0.5">
-                <Terminal className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-sm font-headline font-bold text-on-surface mt-1">
-                  Round 1 Active
-                </div>
-                <div className="text-xs font-headline font-semibold text-outline">
-                  View your selected Problem Statement, Round Rules, and Time Left.
-                </div>
-              </div>
-            </div>
-            <Link href="/round-1">
-              <Button variant="primary" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                View Round 1 Details
-              </Button>
-            </Link>
-          </div>
+
         </div>
       </div>
 
