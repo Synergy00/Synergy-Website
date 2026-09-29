@@ -184,7 +184,7 @@ function AuthForm() {
           {tab === "register"
             ? isRegistrationClosed
               ? "Registrations Stopped"
-              : "Create Account & Register"
+              : "Create Account"
             : "Sign In"}
         </Button>
       </form>

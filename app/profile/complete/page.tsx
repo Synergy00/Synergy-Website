@@ -372,7 +372,7 @@ export default function CompleteProfilePage() {
                   size="lg"
                   isLoading={loading}
                 >
-                  Submit & Generate ID
+                  Submit
                 </Button>
               </div>
             </form>
