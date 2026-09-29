@@ -399,6 +399,9 @@ export default function DashboardPage() {
               leadName: (teamFound as any).profiles?.full_name || "Team Lead",
               memberCount: 2,
             });
+          } else {
+            setJoinError("Invalid team code. Please check with your team lead.");
+          }
         } catch {
           setJoinError("Invalid team code. Please check with your team lead.");
         }
