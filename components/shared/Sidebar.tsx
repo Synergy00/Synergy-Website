@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { Zap, LayoutDashboard, Flag, Lock, LogOut, Menu, X } from "lucide-react";
+import { Zap, LayoutDashboard, Flag, Lock, LogOut, Menu, X, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {

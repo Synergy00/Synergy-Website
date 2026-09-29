@@ -194,7 +194,7 @@ export default function Round1Page() {
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <Input
                       label="Presentation Link (Google Drive / Canva)"
-                      icon={<FileText className="w-4 h-4" />}
+                      leftIcon={<FileText className="w-4 h-4" />}
                       placeholder="https://..."
                       value={pptUrl}
                       onChange={(e) => setPptUrl(e.target.value)}
@@ -202,7 +202,7 @@ export default function Round1Page() {
                     />
                     <Input
                       label="GitHub Repository Link"
-                      icon={<Terminal className="w-4 h-4" />}
+                      leftIcon={<Terminal className="w-4 h-4" />}
                       placeholder="https://github.com/..."
                       value={githubLink}
                       onChange={(e) => setGithubLink(e.target.value)}
