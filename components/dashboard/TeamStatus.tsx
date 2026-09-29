@@ -144,33 +144,26 @@ export function TeamStatus({
             ))}
           </div>
 
-          {/* Assigned Problem Statement Banner */}
+          {/* Round 1 Details Link */}
           <div className="mt-6 p-4 rounded-xl bg-surface-container-lowest/90 border border-primary/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-lg bg-primary-container/20 text-primary shrink-0 mt-0.5">
                 <Terminal className="w-5 h-5" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-primary px-2 py-0.5 rounded bg-primary-container/20 border border-primary/40">
-                    {team.problemStatementId || "PS01"}
-                  </span>
-                  <span className="text-xs font-headline font-bold text-outline">
-                    {team.problemStatementDomain || "AI & Intelligent Systems"}
-                  </span>
-                </div>
                 <div className="text-sm font-headline font-bold text-on-surface mt-1">
-                  {team.problemStatementTitle || "AI Campus Study & Peer Collaborative Copilot"}
+                  Round 1 Active
+                </div>
+                <div className="text-xs font-headline font-semibold text-outline">
+                  View your selected Problem Statement, Round Rules, and Time Left.
                 </div>
               </div>
             </div>
-            {/* TODO: Uncomment when ready to accept submissions
             <Link href="/round-1">
               <Button variant="primary" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                Open Round 1 Build
+                View Round 1 Details
               </Button>
             </Link>
-            */}
           </div>
         </div>
       </div>
