@@ -253,28 +253,7 @@ export default function DashboardPage() {
           setSearchResults(results);
         }
       } catch (err) {
-        // Fallback demo results for local preview
-        const mockResults: ParticipantSearchResult[] = [
-          {
-            id: "user-2",
-            fullName: "Sarah Jenkins",
-            participantId: "PH26-00125",
-            college: "SRM IST",
-            inTeam: false,
-          },
-          {
-            id: "user-3",
-            fullName: "Rohan Gupta",
-            participantId: "PH26-00126",
-            college: "VIT Chennai",
-            inTeam: false,
-          },
-        ].filter(
-          (p) =>
-            p.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            p.participantId.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        setSearchResults(mockResults);
+        setSearchResults([]);
       }
     }, 300);
 
@@ -297,7 +276,8 @@ export default function DashboardPage() {
     const chosenPs = getProblemStatementById(selectedPsId) || OFFICIAL_PROBLEM_STATEMENTS[0];
 
     try {
-      const currentProfileId = profile?.id || "demo-user-id";
+      const currentProfileId = profile?.id;
+      if (!currentProfileId) throw new Error("No active profile session found.");
       
       const { count } = await supabase
         .from("teams")
@@ -329,7 +309,8 @@ export default function DashboardPage() {
         }
       }
 
-      const teamId = newTeam?.id || "demo-team-id";
+      if (!newTeam) throw new Error("Failed to insert team.");
+      const teamId = newTeam.id;
 
       // 2. Insert Lead & Added Members
       const membersToInsert = [
@@ -346,10 +327,10 @@ export default function DashboardPage() {
       // Local State Update
       const selfMember: TeamMember = {
         id: currentProfileId,
-        fullName: profile?.fullName || "Alex Chen",
-        participantId: profile?.participantId || "PH26-00124",
+        fullName: profile?.fullName || "Team Lead",
+        participantId: profile?.participantId || "TBA",
         role: "lead",
-        college: "SRM IST",
+        college: profile?.college || "Unknown College",
       };
 
       const addedMembersMapped: TeamMember[] = selectedMembers.map((m) => ({
