@@ -75,7 +75,21 @@ export default function CompleteProfilePage() {
   }, [router, supabase]);
 
   const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    let processedValue = value;
+
+    // Real-time strict validation & formatting
+    if (field === "contact") {
+      // Only allow digits, max 10 characters
+      processedValue = value.replace(/\D/g, "").slice(0, 10);
+    } else if (["regNo", "branch", "department", "section"].includes(field)) {
+      // Auto-uppercase these fields
+      processedValue = value.toUpperCase();
+    } else if (field === "fullName") {
+      // Prevent numbers and special characters (allow only letters, spaces, hyphens, and apostrophes)
+      processedValue = value.replace(/[^A-Za-z\s\-']/g, "");
+    }
+
+    setFormData((prev) => ({ ...prev, [field]: processedValue }));
     if (errors[field]) {
       setErrors((prev) => {
         const copy = { ...prev };
