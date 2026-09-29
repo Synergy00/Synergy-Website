@@ -70,11 +70,6 @@ export default function Round2Page() {
             fullName: profile.full_name,
             participantId: profile.participant_id,
           });
-        } else {
-          setUserProfile({
-            fullName: "Alex Chen",
-            participantId: "PH26-01-0001",
-          });
         }
 
         // Fetch team status
@@ -87,11 +82,10 @@ export default function Round2Page() {
         if (membership && (membership as any).teams?.status === "shortlisted") {
           setIsShortlisted(true);
         } else {
-          // Demo fallback
-          setIsShortlisted(true);
+          setIsShortlisted(false);
         }
       } catch {
-        setIsShortlisted(true);
+        setIsShortlisted(false);
       } finally {
         setLoading(false);
       }

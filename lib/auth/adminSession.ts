@@ -9,25 +9,37 @@ export interface AdminSession {
 }
 
 export function verifyAdminCredentials(adminId: string, password: string): boolean {
-  const expectedId = process.env.ADMIN_ID || "admin_synergy";
-  const passwordHash = process.env.ADMIN_PASSWORD_HASH;
+  const trimmedId = adminId.trim().toLowerCase();
+  const trimmedPw = password.trim();
 
-  // Case-insensitive ID check & trimmed
-  if (adminId.trim().toLowerCase() !== expectedId.trim().toLowerCase()) {
-    return false;
+  // Support multiple admins via ADMIN_CREDENTIALS JSON env var
+  // Format: [{"id":"admin1","hash":"bcrypt_hash"},{"id":"admin2","hash":"bcrypt_hash"}]
+  const credentialsJson = process.env.ADMIN_CREDENTIALS;
+  if (credentialsJson) {
+    try {
+      const accounts: { id: string; hash: string }[] = JSON.parse(credentialsJson);
+      for (const account of accounts) {
+        if (trimmedId === account.id.trim().toLowerCase()) {
+          return bcrypt.compareSync(trimmedPw, account.hash);
+        }
+      }
+      return false;
+    } catch (err) {
+      console.warn("Failed to parse ADMIN_CREDENTIALS:", err);
+    }
   }
 
-  // Bcrypt hash check against env-configured hash
+  // Fallback: single admin via ADMIN_ID + ADMIN_PASSWORD_HASH env vars
+  const expectedId = process.env.ADMIN_ID || "";
+  const passwordHash = process.env.ADMIN_PASSWORD_HASH;
+  if (trimmedId !== expectedId.trim().toLowerCase()) return false;
   if (passwordHash) {
     try {
-      if (bcrypt.compareSync(password, passwordHash)) {
-        return true;
-      }
+      return bcrypt.compareSync(trimmedPw, passwordHash);
     } catch (err) {
       console.warn("Bcrypt comparison error:", err);
     }
   }
-
   return false;
 }
 

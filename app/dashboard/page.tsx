@@ -21,6 +21,7 @@ import {
   Terminal,
   ArrowRight,
   BookOpen,
+  Trophy,
 } from "lucide-react";
 import { AmbientGlow } from "@/components/shared/AmbientGlow";
 import { Sidebar } from "@/components/shared/Sidebar";
@@ -564,6 +565,34 @@ export default function DashboardPage() {
         <div className="mb-6 flex justify-center">
           <ServerClockRenderer placement="dashboard" />
         </div>
+
+        {/* 🎉 SHORTLISTED BANNER — only appears when admin marks the team as shortlisted */}
+        {team?.status === "shortlisted" && (
+          <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-primary/10 to-amber-500/10 border border-primary/50 shadow-amber backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-500">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="w-12 h-12 shrink-0 rounded-xl bg-primary-container/20 border border-primary/40 flex items-center justify-center text-primary shadow-amber">
+                <Trophy className="w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-xs uppercase font-headline font-bold tracking-widest text-primary">Official Notice</span>
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                </div>
+                <h2 className="text-lg font-headline font-bold text-on-surface">
+                  🎉 Your Team Has Been Shortlisted for Round 2!
+                </h2>
+                <p className="text-xs text-outline font-body mt-0.5">
+                  Congratulations! Your team <strong className="text-on-surface">{team.name}</strong> has been selected to advance to Round 2 — the offline rapid-build finale. Head to Round 2 for details.
+                </p>
+              </div>
+              <a href="/round-2">
+                <Button variant="primary" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                  View Round 2
+                </Button>
+              </a>
+            </div>
+          </div>
+        )}
 
         {/* --- NO TEAM STATE --- */}
         {!team ? (

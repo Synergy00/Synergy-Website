@@ -195,17 +195,27 @@ export default function AdminParticipantsPage() {
     document.body.removeChild(link);
   };
 
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   // Safe Removal logic in Supabase
   const handleConfirmDelete = async () => {
     if (!toDelete) return;
     setIsDeleting(true);
+    setDeleteError(null);
 
     try {
-      await supabase.from("profiles").delete().eq("id", toDelete.id);
+      // 1. Remove team memberships first
+      await supabase.from("team_members").delete().eq("profile_id", toDelete.id);
+      // 2. Delete the profile record
+      const { error } = await supabase.from("profiles").delete().eq("id", toDelete.id);
+      if (error) {
+        setDeleteError(error.message);
+        return;
+      }
       setParticipants((prev) => prev.filter((p) => p.id !== toDelete.id));
       setToDelete(null);
-    } catch (err) {
-      console.error("Failed to delete participant:", err);
+    } catch (err: any) {
+      setDeleteError(err?.message || "Failed to delete participant.");
     } finally {
       setIsDeleting(false);
     }
