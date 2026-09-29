@@ -13,29 +13,64 @@ const supabaseAdmin = createClient(
   }
 );
 
-export async function POST(request: NextRequest) {
-  // 1. Verify admin session
+function verifyAdmin(request: NextRequest): boolean {
   const adminSessionCookie = request.cookies.get("protohack_admin_session");
-  if (!adminSessionCookie?.value) {
+  return !!(adminSessionCookie?.value);
+}
+
+// GET: Fetch live settings from database
+export async function GET(request: NextRequest) {
+  if (!verifyAdmin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("event_settings")
+      .select("*")
+      .eq("id", 1)
+      .single();
+
+    if (error) {
+      console.error("Failed to fetch event settings:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ settings: data });
+  } catch (err: any) {
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+// POST: Save settings to database
+export async function POST(request: NextRequest) {
+  if (!verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const payload = await request.json();
-    
-    // Ensure ID is 1 for the single row
+
+    // Ensure ID is 1 for the single settings row
     payload.id = 1;
 
-    const { error } = await supabaseAdmin
+    // Serialize server_clocks if passed as array
+    if (payload.server_clocks && Array.isArray(payload.server_clocks)) {
+      payload.server_clocks = JSON.stringify(payload.server_clocks);
+    }
+
+    const { data, error } = await supabaseAdmin
       .from("event_settings")
-      .upsert(payload);
+      .upsert(payload)
+      .select()
+      .single();
 
     if (error) {
       console.error("Failed to update event settings via Admin API:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, settings: data });
   } catch (err: any) {
     console.error("Exception during event settings update:", err);
     return NextResponse.json(

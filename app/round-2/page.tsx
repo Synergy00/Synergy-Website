@@ -76,12 +76,12 @@ export default function Round2Page() {
           });
         }
 
-        // Fetch team status
+        // Fetch team status — check if user is in a shortlisted team
         const { data: membership } = await supabase
           .from("team_members")
           .select("team_id, teams(status)")
-          .eq("profile_id", userId)
-          .single();
+          .eq("user_id", userId)
+          .maybeSingle();
 
         if (membership && (membership as any).teams?.status === "shortlisted") {
           setIsShortlisted(true);

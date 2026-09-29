@@ -88,6 +88,32 @@ export default function AdminEventControlsPage() {
   const loadSettings = async () => {
     setLoading(true);
     try {
+      // Fetch directly from Admin API (service role) to bypass RLS and get fresh DB values
+      const response = await fetch("/api/admin/settings");
+      if (response.ok) {
+        const result = await response.json();
+        const data = result.settings;
+        if (data) {
+          let parsedClocks = DEFAULT_SERVER_CLOCKS;
+          if (data.server_clocks) {
+            try {
+              parsedClocks = typeof data.server_clocks === "string"
+                ? JSON.parse(data.server_clocks)
+                : data.server_clocks;
+            } catch {
+              parsedClocks = DEFAULT_SERVER_CLOCKS;
+            }
+          }
+          setSettings({ ...data, server_clocks: parsedClocks });
+          setClocks(parsedClocks);
+          setWhatsappLink(data.whatsapp_group_link || "");
+          setDriveWebhookUrl(data.drive_upload_webhook_url || "");
+          setRound1Unlocked(data.round1_unlocked ?? false);
+          setRound2Open(data.round2_open ?? true);
+          return;
+        }
+      }
+      // Fallback to cached settings
       const data = await fetchEventSettings();
       setSettings(data);
       setClocks(data.server_clocks || DEFAULT_SERVER_CLOCKS);

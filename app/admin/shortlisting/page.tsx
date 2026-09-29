@@ -174,10 +174,14 @@ export default function AdminShortlistingPage() {
     const targetIds = Array.from(selectedIds);
 
     try {
-      await supabase
-        .from("teams")
-        .update({ status: newStatus })
-        .in("id", targetIds);
+      const response = await fetch("/api/admin/shortlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teamIds: targetIds, status: newStatus }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to update shortlist");
 
       setTeams((prev) =>
         prev.map((t) =>
@@ -196,7 +200,13 @@ export default function AdminShortlistingPage() {
   const handleToggleSingleTeamShortlist = async (team: ShortlistTeam) => {
     const newStatus = team.status === "shortlisted" ? "round1" : "shortlisted";
     try {
-      await supabase.from("teams").update({ status: newStatus }).eq("id", team.id);
+      const response = await fetch("/api/admin/shortlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teamIds: [team.id], status: newStatus }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to toggle shortlist");
       setTeams((prev) =>
         prev.map((t) => (t.id === team.id ? { ...t, status: newStatus } : t))
       );
