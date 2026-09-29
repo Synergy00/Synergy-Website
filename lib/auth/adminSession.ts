@@ -48,39 +48,35 @@ function parseCookieValue(value: string): AdminSession | null {
 }
 
 // ─── Credential Verification ──────────────────────────────────────────────────
-export function verifyAdminCredentials(adminId: string, password: string): boolean {
+import { createClient } from "@supabase/supabase-js";
+
+export async function verifyAdminCredentials(adminId: string, password: string): Promise<boolean> {
   const trimmedId = adminId.trim().toLowerCase();
   const trimmedPw = password.trim();
 
-  // Support multiple admins via ADMIN_CREDENTIALS JSON env var
-  // Format: [{"id":"admin1","hash":"bcrypt_hash"},{"id":"admin2","hash":"bcrypt_hash"}]
-  const credentialsJson = process.env.ADMIN_CREDENTIALS;
-  if (credentialsJson) {
-    try {
-      const accounts: { id: string; hash: string }[] = JSON.parse(credentialsJson);
-      for (const account of accounts) {
-        if (trimmedId === account.id.trim().toLowerCase()) {
-          return bcrypt.compareSync(trimmedPw, account.hash);
-        }
-      }
-      return false;
-    } catch (err) {
-      console.warn("Failed to parse ADMIN_CREDENTIALS:", err);
-    }
-  }
+  // Create a server-side client with anon key (assuming admins table has public read or we use service role)
+  // Actually, we must use the service role key to read password hashes, or make the table RLS open for reads.
+  // It's safer to use the service role key.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
-  // Fallback: single admin via ADMIN_ID + ADMIN_PASSWORD_HASH env vars
-  const expectedId = process.env.ADMIN_ID || "";
-  const passwordHash = process.env.ADMIN_PASSWORD_HASH;
-  if (trimmedId !== expectedId.trim().toLowerCase()) return false;
-  if (passwordHash) {
-    try {
-      return bcrypt.compareSync(trimmedPw, passwordHash);
-    } catch (err) {
-      console.warn("Bcrypt comparison error:", err);
+  try {
+    const { data: admin, error } = await supabase
+      .from("admins")
+      .select("id, password_hash")
+      .eq("id", trimmedId)
+      .single();
+
+    if (error || !admin) {
+      return false;
     }
+
+    return bcrypt.compareSync(trimmedPw, admin.password_hash);
+  } catch (err) {
+    console.error("Failed to verify admin against database:", err);
+    return false;
   }
-  return false;
 }
 
 // ─── Session Management ───────────────────────────────────────────────────────
