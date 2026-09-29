@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Zap, LayoutDashboard, Flag, Lock, LogOut, Menu, X, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ interface SidebarProps {
 
 export function Sidebar({ userProfile, hasTeam, teamStatus, round1Unlocked, round2Unlocked, onLogout }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <>
@@ -74,7 +76,15 @@ export function Sidebar({ userProfile, hasTeam, teamStatus, round1Unlocked, roun
           Dashboard
         </div>
 
-        <Link href="/dashboard" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary-container/20 text-primary font-semibold transition-colors hover:bg-primary-container/30">
+        <Link
+          href="/dashboard"
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-colors",
+            pathname === "/dashboard"
+              ? "bg-primary-container/20 text-primary"
+              : "text-on-surface hover:bg-surface-container"
+          )}
+        >
           <LayoutDashboard className="w-5 h-5" />
           <span>Overview</span>
         </Link>
@@ -85,8 +95,16 @@ export function Sidebar({ userProfile, hasTeam, teamStatus, round1Unlocked, roun
 
         {hasTeam ? (
           round1Unlocked ? (
-            <Link href="/round-1" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:bg-surface-container transition-colors">
-              <Flag className="w-5 h-5 text-success" />
+            <Link
+              href="/round-1"
+              className={cn(
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors",
+                pathname === "/round-1"
+                  ? "bg-success/10 text-success font-bold border border-success/30"
+                  : "text-on-surface hover:bg-surface-container font-semibold"
+              )}
+            >
+              <Flag className={cn("w-5 h-5", pathname === "/round-1" ? "text-success" : "text-success/70")} />
               <span>Round 1: Build</span>
             </Link>
           ) : (
@@ -109,7 +127,15 @@ export function Sidebar({ userProfile, hasTeam, teamStatus, round1Unlocked, roun
         )}
 
         {hasTeam && teamStatus === "shortlisted" && round2Unlocked ? (
-          <Link href="/round-2" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface hover:bg-surface-container transition-colors mt-2">
+          <Link
+            href="/round-2"
+            className={cn(
+              "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors mt-2",
+              pathname === "/round-2"
+                ? "bg-amber-500/10 text-amber-400 font-bold border border-amber-500/30"
+                : "text-on-surface hover:bg-surface-container font-semibold"
+            )}
+          >
             <Trophy className="w-5 h-5 text-amber-500" />
             <span>Round 2: Finale</span>
           </Link>

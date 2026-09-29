@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
   Users,
   Search,
@@ -17,14 +16,12 @@ import {
   Copy,
   Check,
   ChevronDown,
-  Layers,
 } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { Input } from "@/components/shared/Input";
 import { Modal } from "@/components/shared/Modal";
 import { Chip } from "@/components/shared/Chip";
-import { createClient } from "@/lib/supabase/client";
-import { getProblemStatementById, OFFICIAL_PROBLEM_STATEMENTS } from "@/lib/problem-statements";
+import { getProblemStatementById } from "@/lib/problem-statements";
 
 interface TeamMember {
   id: string;
@@ -48,8 +45,6 @@ interface TeamRecord {
 }
 
 export default function AdminTeamsPage() {
-  const supabase = createClient();
-  const router = useRouter();
   const [teams, setTeams] = useState<TeamRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -59,71 +54,59 @@ export default function AdminTeamsPage() {
   const [toDelete, setToDelete] = useState<TeamRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
   const loadTeams = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const { data: teamsData, error } = await supabase
-        .from("teams")
-        .select(`
-          id,
-          name,
-          code,
-          status,
-          created_at,
-          lead_id,
-          problem_statement_id,
-          team_members (
-            role,
-            profiles (
-              id,
-              full_name,
-              participant_id,
-              college
-            )
-          )
-        `)
-        .order("created_at", { ascending: false });
+      // Fetch via admin API (service role key, bypasses RLS)
+      const response = await fetch("/api/admin/teams");
+      const data = await response.json();
 
-      if (teamsData && !error) {
-        const formatted: TeamRecord[] = teamsData.map((t: any) => {
-          const membersList: TeamMember[] = (t.team_members || []).map((tm: any) => ({
-            id: tm.profiles?.id || "",
-            fullName: tm.profiles?.full_name || "Member",
-            participantId: tm.profiles?.participant_id || "PH26-00-0000",
-            college: tm.profiles?.college || "College",
-            role: tm.role || "member",
-          }));
-
-          const lead = membersList.find((m) => m.role === "lead");
-          const activePs = t.problem_statement_id ? getProblemStatementById(t.problem_statement_id) : undefined;
-
-          return {
-            id: t.id,
-            name: t.name,
-            code: t.code,
-            leadName: lead?.fullName || "No Lead",
-            status: t.status || "round1",
-            problemStatementId: t.problem_statement_id || null,
-            problemStatementTitle: activePs?.title || "No problem statement selected",
-            problemStatementDomain: activePs?.domain || "Uncategorized",
-            members: membersList,
-            createdAt: t.created_at,
-          };
-        });
-
-        setTeams(formatted);
-      } else {
+      if (!response.ok) {
+        setError(data.error || "Failed to load teams");
         setTeams([]);
+        return;
       }
+
+      const formatted: TeamRecord[] = (data.teams || []).map((t: any) => {
+        const membersList: TeamMember[] = (t.team_members || []).map((tm: any) => ({
+          id: tm.profiles?.id || "",
+          fullName: tm.profiles?.full_name || "Member",
+          participantId: tm.profiles?.participant_id || "PH26-00-0000",
+          college: tm.profiles?.college || "College",
+          role: tm.role || "member",
+        }));
+
+        const lead = membersList.find((m) => m.role === "lead");
+        const activePs = t.problem_statement_id
+          ? getProblemStatementById(t.problem_statement_id)
+          : undefined;
+
+        return {
+          id: t.id,
+          name: t.name,
+          code: t.code,
+          leadName: lead?.fullName || "No Lead",
+          status: t.status || "round1",
+          problemStatementId: t.problem_statement_id || null,
+          problemStatementTitle: activePs?.title || "No problem statement selected",
+          problemStatementDomain: activePs?.domain || "Uncategorized",
+          members: membersList,
+          createdAt: t.created_at,
+        };
+      });
+
+      setTeams(formatted);
     } catch (err) {
       console.error("Failed to load teams:", err);
+      setError("Failed to load teams. Please try again.");
     } finally {
       setLoading(false);
-      router.refresh();
     }
   };
 
@@ -145,9 +128,9 @@ export default function AdminTeamsPage() {
       const response = await fetch(`/api/admin/teams/${toDelete.id}`, {
         method: "DELETE",
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         console.error("Failed to disband team:", data.error);
         return;
@@ -167,9 +150,10 @@ export default function AdminTeamsPage() {
       t.name.toLowerCase().includes(search.toLowerCase()) ||
       t.code.toLowerCase().includes(search.toLowerCase()) ||
       t.leadName.toLowerCase().includes(search.toLowerCase()) ||
-      t.members.some((m) =>
-        m.fullName.toLowerCase().includes(search.toLowerCase()) ||
-        m.participantId.toLowerCase().includes(search.toLowerCase())
+      t.members.some(
+        (m) =>
+          m.fullName.toLowerCase().includes(search.toLowerCase()) ||
+          m.participantId.toLowerCase().includes(search.toLowerCase())
       );
 
     const matchesSize =
@@ -220,7 +204,7 @@ export default function AdminTeamsPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `protohack_teams_${Date.now()}.csv`);
+    link.setAttribute("download", `teams_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -235,7 +219,7 @@ export default function AdminTeamsPage() {
             Teams Management
           </h1>
           <p className="text-xs text-outline font-body mt-0.5">
-            Real-time live team formations and member rosters from Supabase.
+            All registered teams fetched securely via admin API (service role).
           </p>
         </div>
 
@@ -260,6 +244,14 @@ export default function AdminTeamsPage() {
           </Button>
         </div>
       </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div className="p-4 rounded-xl bg-error-container/20 border border-error/40 flex items-start gap-3">
+          <AlertTriangle className="w-4 h-4 text-error shrink-0 mt-0.5" />
+          <span className="text-xs text-error font-body">{error}</span>
+        </div>
+      )}
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -355,7 +347,7 @@ export default function AdminTeamsPage() {
                   <td colSpan={7} className="px-6 py-12 text-center text-outline">
                     <div className="flex items-center justify-center gap-2">
                       <span className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      <span>Loading real-time teams...</span>
+                      <span>Loading teams...</span>
                     </div>
                   </td>
                 </tr>
@@ -364,7 +356,7 @@ export default function AdminTeamsPage() {
                   <td colSpan={7} className="px-6 py-12 text-center text-outline">
                     {search || sizeFilter !== "all" || statusFilter !== "all"
                       ? "No teams match your current filters."
-                      : "No teams formed in the database yet. When participants create teams, they will appear here live."}
+                      : "No teams formed in the database yet. When participants create teams, they will appear here."}
                   </td>
                 </tr>
               ) : (
@@ -401,12 +393,21 @@ export default function AdminTeamsPage() {
                         </td>
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-xs font-bold text-primary px-2 py-0.5 rounded bg-primary-container/20 border border-primary/40 shrink-0">
-                              {t.problemStatementId || "PS01"}
-                            </span>
-                            <span className="truncate max-w-[180px] text-xs font-medium text-on-surface" title={t.problemStatementTitle}>
-                              {t.problemStatementTitle || "AI Campus Study & Peer Collaborative Copilot"}
-                            </span>
+                            {t.problemStatementId ? (
+                              <>
+                                <span className="font-mono text-xs font-bold text-primary px-2 py-0.5 rounded bg-primary-container/20 border border-primary/40 shrink-0">
+                                  {t.problemStatementId}
+                                </span>
+                                <span
+                                  className="truncate max-w-[180px] text-xs font-medium text-on-surface"
+                                  title={t.problemStatementTitle}
+                                >
+                                  {t.problemStatementTitle}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-xs text-outline italic">Not selected</span>
+                            )}
                           </div>
                         </td>
                         <td className="px-4 py-3.5">
@@ -505,6 +506,7 @@ export default function AdminTeamsPage() {
         <div className="px-4 py-3 bg-surface-container-lowest/60 border-t border-outline-variant/20 flex items-center justify-between text-xs text-outline">
           <div>
             Showing {paginated.length} of {filtered.length} teams
+            {filtered.length !== totalTeams && ` (filtered from ${totalTeams})`}
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -540,7 +542,7 @@ export default function AdminTeamsPage() {
             <AlertTriangle className="w-5 h-5 text-error shrink-0 mt-0.5" />
             <div className="text-xs text-error font-body">
               Are you sure you want to disband <strong>{toDelete?.name}</strong>?
-              The team and its code will be removed from Supabase. All members will be freed to create or join a new team.
+              The team and its code will be removed. All members will be freed to create or join a new team.
             </div>
           </div>
 

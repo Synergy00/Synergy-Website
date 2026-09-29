@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import {
   Users,
   Search,
@@ -19,7 +18,7 @@ import { Button } from "@/components/shared/Button";
 import { Input } from "@/components/shared/Input";
 import { Modal } from "@/components/shared/Modal";
 import { Chip } from "@/components/shared/Chip";
-import { createClient } from "@/lib/supabase/client";
+
 
 interface ParticipantRecord {
   id: string;
@@ -38,8 +37,7 @@ interface ParticipantRecord {
 }
 
 export default function AdminParticipantsPage() {
-  const supabase = createClient();
-  const router = useRouter();
+
   const [participants, setParticipants] = useState<ParticipantRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -94,7 +92,6 @@ export default function AdminParticipantsPage() {
       setParticipants([]);
     } finally {
       setLoading(false);
-      router.refresh(); // Clear Next.js router cache to ensure fresh data
     }
   };
 

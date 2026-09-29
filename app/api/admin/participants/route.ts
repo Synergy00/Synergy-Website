@@ -1,24 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-// Initialize Supabase Admin client (bypasses RLS)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-);
+import { createAdminClient } from "@/lib/supabase/admin";
+import { verifyAdminSessionCookie } from "@/lib/auth/adminSession";
 
 export async function GET(request: NextRequest) {
-  // 1. Verify admin session
-  const adminSessionCookie = request.cookies.get("protohack_admin_session");
-  if (!adminSessionCookie?.value) {
+  // 1. Verify admin session (full HMAC check)
+  if (!verifyAdminSessionCookie(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const supabaseAdmin = createAdminClient();
 
   try {
     const { data: profiles, error } = await supabaseAdmin

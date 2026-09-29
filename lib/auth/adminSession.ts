@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { type NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { createHmac } from "crypto";
 
@@ -114,4 +115,23 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 export async function clearAdminSession() {
   const cookieStore = cookies();
   cookieStore.delete(ADMIN_COOKIE_NAME);
+}
+
+// ─── Request-level Verification (for API routes) ──────────────────────────────
+/**
+ * Verifies the admin session cookie from a NextRequest object.
+ * Performs full HMAC signature check + expiry check.
+ * Use this in API route handlers instead of getAdminSession() which needs server component context.
+ */
+export function verifyAdminSessionCookie(request: NextRequest): boolean {
+  const cookie = request.cookies.get(ADMIN_COOKIE_NAME);
+  if (!cookie?.value) return false;
+
+  const parsed = parseCookieValue(cookie.value);
+  if (!parsed) return false;
+
+  // 8-hour expiry check
+  if (Date.now() - parsed.authenticatedAt > 8 * 60 * 60 * 1000) return false;
+
+  return true;
 }

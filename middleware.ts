@@ -1,6 +1,53 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+// ─── Admin Cookie HMAC Verification (Web Crypto — Edge-compatible) ────────────
+// Middleware runs in the Edge runtime which does NOT support Node.js `crypto`.
+// We use SubtleCrypto (Web Crypto API) which is available in Edge/browser/Node 18+.
+
+async function verifyAdminCookie(cookieValue: string): Promise<boolean> {
+  const parts = cookieValue.split(".");
+  if (parts.length !== 2) return false;
+
+  const [payload, signature] = parts;
+  const secret = process.env.ADMIN_SESSION_SECRET || "fallback-secret-change-in-production";
+
+  try {
+    // Import the HMAC key using SubtleCrypto
+    const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw",
+      enc.encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+
+    // Compute expected signature
+    const sigBuffer = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
+    const expectedSig = Array.from(new Uint8Array(sigBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    // Constant-time comparison to prevent timing attacks
+    if (signature.length !== expectedSig.length) return false;
+    let diff = 0;
+    for (let i = 0; i < signature.length; i++) {
+      diff |= signature.charCodeAt(i) ^ expectedSig.charCodeAt(i);
+    }
+    if (diff !== 0) return false;
+
+    // Check 8-hour expiry
+    const raw = atob(payload); // atob is available in Edge runtime
+    const session = JSON.parse(raw);
+    if (Date.now() - session.authenticatedAt > 8 * 60 * 60 * 1000) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
     request: { headers: request.headers },
@@ -57,17 +104,11 @@ export async function middleware(request: NextRequest) {
   // ─── 1. ADMIN ROUTE PROTECTION ────────────────────────────────────────────
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const adminSessionCookie = request.cookies.get("protohack_admin_session");
-    if (!adminSessionCookie?.value) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
-    }
 
-    // Verify cookie has a valid signature (HMAC check)
-    const cookieValue = adminSessionCookie.value;
-    const parts = cookieValue.split(".");
-    if (parts.length !== 2) {
-      // Malformed — reject
+    // Full HMAC signature + expiry verification
+    if (!adminSessionCookie?.value || !(await verifyAdminCookie(adminSessionCookie.value))) {
       const res = NextResponse.redirect(new URL("/admin/login", request.url));
-      res.cookies.delete("protohack_admin_session");
+      res.cookies.delete("protohack_admin_session"); // Clear invalid/expired cookie
       return res;
     }
   }

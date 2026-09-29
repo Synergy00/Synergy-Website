@@ -1,15 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { verifyAdminSessionCookie } from "@/lib/auth/adminSession";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
+const supabaseAdmin = createAdminClient();
+
+export async function GET(request: NextRequest) {
+  // Fetch all teams with submission fields for shortlisting page
+  if (!verifyAdminSessionCookie(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { data: teams, error } = await supabaseAdmin
+      .from("teams")
+      .select(`
+        id,
+        name,
+        code,
+        status,
+        problem_statement_id,
+        ppt_url,
+        tech_stack,
+        created_at,
+        team_members (
+          role,
+          profiles (
+            full_name,
+            college
+          )
+        )
+      `)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Failed to fetch teams for shortlisting:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ teams });
+  } catch (err: any) {
+    console.error("Exception during shortlist fetch:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest) {
-  const adminSessionCookie = request.cookies.get("protohack_admin_session");
-  if (!adminSessionCookie?.value) {
+  if (!verifyAdminSessionCookie(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
