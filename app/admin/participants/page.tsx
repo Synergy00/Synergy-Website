@@ -51,36 +51,22 @@ export default function AdminParticipantsPage() {
   const [toDelete, setToDelete] = useState<ParticipantRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Load real participants from Supabase
+  // Load real participants via Admin API (Bypasses RLS)
   const loadParticipants = async () => {
     setLoading(true);
     try {
-      const { data: profiles, error } = await supabase
-        .from("profiles")
-        .select(`
-          id,
-          participant_id,
-          full_name,
-          reg_no,
-          college,
-          branch,
-          department,
-          section,
-          contact,
-          email,
-          created_at,
-          team_members (
-            role,
-            teams (
-              name
-            )
-          )
-        `)
-        .order("created_at", { ascending: false });
+      const response = await fetch("/api/admin/participants");
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error("Failed to fetch profiles:", data.error);
+        setParticipants([]);
+        return;
+      }
 
-      if (profiles && !error) {
-        const formatted: ParticipantRecord[] = profiles.map((p: any) => {
-          const membership = p.team_members?.[0];
+      if (data.profiles) {
+        const formatted: ParticipantRecord[] = data.profiles.map((p: any) => {
+          const membership = Array.isArray(p.team_members) ? p.team_members[0] : p.team_members;
           return {
             id: p.id,
             participantId: p.participant_id,
@@ -103,7 +89,8 @@ export default function AdminParticipantsPage() {
       } else {
         setParticipants([]);
       }
-    } catch {
+    } catch (err) {
+      console.error("Exception loading participants:", err);
       setParticipants([]);
     } finally {
       setLoading(false);
