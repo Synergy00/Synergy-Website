@@ -189,42 +189,7 @@ function AuthForm() {
         </Button>
       </form>
 
-      {/* Divider */}
-      <div className="relative my-6 text-center">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-outline-variant/30" />
-        </div>
-        <span className="relative bg-surface-container px-3 text-[10px] font-headline font-bold uppercase tracking-widest text-outline">
-          OR
-        </span>
-      </div>
-
-      {/* Google OAuth */}
-      <button
-        type="button"
-        onClick={handleGoogleAuth}
-        className="w-full py-3 px-4 rounded-xl bg-surface-container-lowest border border-outline-variant/40 hover:bg-surface-container-high transition-all flex items-center justify-center gap-3 text-xs font-headline font-bold uppercase tracking-wider text-on-surface"
-      >
-        <svg className="w-4 h-4" viewBox="0 0 24 24">
-          <path
-            fill="#EA4335"
-            d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.1 8.9 5 12 5z"
-          />
-          <path
-            fill="#4285F4"
-            d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"
-          />
-          <path
-            fill="#FBBC05"
-            d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.1-2 .4-2.7L1.6 6.4C.6 8.4 0 10.6 0 13s.6 4.6 1.6 6.6l3.7-2.9z"
-          />
-          <path
-            fill="#34A853"
-            d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5.3L1.6 16c1.9 3.8 5.8 7 10.4 7z"
-          />
-        </svg>
-        <span>Continue with Google</span>
-      </button>
+      {/* Google OAuth Temporarily Hidden */}
 
       {/* Footer text */}
       <div className="text-center mt-6">
