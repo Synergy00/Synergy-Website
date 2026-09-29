@@ -226,7 +226,7 @@ export default function AdminEventControlsPage() {
       const nextVal = !round2Open;
       setRound2Open(nextVal);
       await updateEventSettings({ round2_open: nextVal });
-      setSaveSuccess(`Round 2 shortlist visibility ${nextVal ? "published" : "hidden"}!`);
+      setSaveSuccess(`Round 2 ${nextVal ? "unlocked" : "locked"} globally!`);
     }
     setPendingToggle(null);
     setTimeout(() => setSaveSuccess(null), 3500);
@@ -672,10 +672,10 @@ export default function AdminEventControlsPage() {
                   Round 2: Shortlist Visibility
                 </span>
                 <Chip
-                  variant={round2Open ? "lavender" : "neutral"}
+                  variant={round2Open ? "success" : "neutral"}
                   pulse={round2Open}
                 >
-                  {round2Open ? "VISIBLE" : "HIDDEN"}
+                  {round2Open ? "UNLOCKED" : "LOCKED"}
                 </Chip>
               </div>
               <p className="text-xs text-outline font-body leading-relaxed mb-6">
@@ -684,12 +684,12 @@ export default function AdminEventControlsPage() {
             </div>
 
             <Button
-              variant={round2Open ? "secondary" : "primary"}
+              variant={round2Open ? "destructive" : "primary"}
               size="sm"
               onClick={() => setPendingToggle("round2")}
               leftIcon={round2Open ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
             >
-              {round2Open ? "Hold Back Round 2 Results" : "Publish Round 2 to Finalists"}
+              {round2Open ? "Lock Round 2 Globally" : "Unlock Round 2 For Finalists"}
             </Button>
           </div>
         </div>
