@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const { data: membership } = await supabaseAdmin
       .from("team_members")
       .select("team_id")
-      .eq("user_id", user.id)
+      .eq("profile_id", user.id)
       .maybeSingle();
 
     if (!membership) {

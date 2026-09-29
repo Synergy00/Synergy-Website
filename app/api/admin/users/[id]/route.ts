@@ -30,7 +30,7 @@ export async function DELETE(
 
   try {
     // 2. Explicitly delete from dependent tables to avoid ON DELETE RESTRICT foreign key constraint errors
-    await supabaseAdmin.from("team_members").delete().eq("user_id", userId);
+    await supabaseAdmin.from("team_members").delete().eq("profile_id", userId);
     await supabaseAdmin.from("profiles").delete().eq("id", userId);
 
     // 3. Delete the user from auth.users
