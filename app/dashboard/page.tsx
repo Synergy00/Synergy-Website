@@ -104,7 +104,7 @@ export default function DashboardPage() {
 
   // Create team state
   const [teamName, setTeamName] = useState("");
-  const [selectedPsId, setSelectedPsId] = useState<string>("PS01");
+  const [selectedPsId, setSelectedPsId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<ParticipantSearchResult[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<ParticipantSearchResult[]>([]);
@@ -644,6 +644,7 @@ export default function DashboardPage() {
                   onChange={(e) => setSelectedPsId(e.target.value)}
                   className="w-full px-3.5 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/40 text-xs sm:text-sm font-headline font-semibold text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
+                  <option value="" disabled>-- Select a Problem Statement --</option>
                   {OFFICIAL_PROBLEM_STATEMENTS.map((ps) => (
                     <option key={ps.id} value={ps.id}>
                       {ps.id}: {ps.title} ({ps.domain})
@@ -652,8 +653,9 @@ export default function DashboardPage() {
                 </select>
 
                 {/* Selected PS Preview Card */}
-                {(() => {
-                  const activePs = getProblemStatementById(selectedPsId) || OFFICIAL_PROBLEM_STATEMENTS[0];
+                {selectedPsId && (() => {
+                  const activePs = getProblemStatementById(selectedPsId);
+                  if (!activePs) return null;
                   return (
                     <div className="p-3.5 rounded-xl bg-surface-container-low/80 border border-primary/30 space-y-1.5 animate-in fade-in">
                       <div className="flex items-center justify-between">
