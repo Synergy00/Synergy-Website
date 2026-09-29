@@ -63,7 +63,7 @@ export const DEFAULT_EVENT_SETTINGS: EventSettings = {
   registration_deadline: "2026-10-03T23:59:59+05:30",
   registration_open: true,
   server_clocks: DEFAULT_SERVER_CLOCKS,
-  whatsapp_group_link: "https://chat.whatsapp.com/demo-protohack-2026",
+  whatsapp_group_link: "",
   drive_upload_webhook_url: "",
 };
 
@@ -130,27 +130,27 @@ export async function fetchEventSettings(): Promise<EventSettings> {
       .single();
 
     if (data && !error) {
-      let parsedClocks = local.server_clocks;
+      let parsedClocks = DEFAULT_SERVER_CLOCKS;
       if (data.server_clocks) {
         try {
           parsedClocks = typeof data.server_clocks === "string" ? JSON.parse(data.server_clocks) : data.server_clocks;
         } catch {
-          parsedClocks = local.server_clocks;
+          parsedClocks = DEFAULT_SERVER_CLOCKS;
         }
       }
 
       const merged: EventSettings = {
         id: 1,
-        countdown_label: data.countdown_label || local.countdown_label || DEFAULT_EVENT_SETTINGS.countdown_label,
-        countdown_target: data.countdown_target !== undefined ? data.countdown_target : local.countdown_target,
-        round1_unlocked: data.round1_unlocked !== undefined ? Boolean(data.round1_unlocked) : local.round1_unlocked,
-        round2_open: data.round2_open !== undefined ? Boolean(data.round2_open) : local.round2_open,
-        registration_label: data.registration_label || local.registration_label || DEFAULT_EVENT_SETTINGS.registration_label,
-        registration_deadline: data.registration_deadline !== undefined ? data.registration_deadline : local.registration_deadline,
-        registration_open: data.registration_open !== undefined ? Boolean(data.registration_open) : local.registration_open,
+        countdown_label: data.countdown_label || DEFAULT_EVENT_SETTINGS.countdown_label,
+        countdown_target: data.countdown_target ?? DEFAULT_EVENT_SETTINGS.countdown_target,
+        round1_unlocked: data.round1_unlocked !== undefined ? Boolean(data.round1_unlocked) : DEFAULT_EVENT_SETTINGS.round1_unlocked,
+        round2_open: data.round2_open !== undefined ? Boolean(data.round2_open) : DEFAULT_EVENT_SETTINGS.round2_open,
+        registration_label: data.registration_label || DEFAULT_EVENT_SETTINGS.registration_label,
+        registration_deadline: data.registration_deadline ?? DEFAULT_EVENT_SETTINGS.registration_deadline,
+        registration_open: data.registration_open !== undefined ? Boolean(data.registration_open) : DEFAULT_EVENT_SETTINGS.registration_open,
         server_clocks: sanitizeClocks(parsedClocks),
-        whatsapp_group_link: data.whatsapp_group_link || local.whatsapp_group_link || DEFAULT_EVENT_SETTINGS.whatsapp_group_link,
-        drive_upload_webhook_url: data.drive_upload_webhook_url || local.drive_upload_webhook_url || "",
+        whatsapp_group_link: data.whatsapp_group_link || "",
+        drive_upload_webhook_url: data.drive_upload_webhook_url || "",
       };
       saveLocalSettings(merged);
       return merged;
@@ -158,7 +158,8 @@ export async function fetchEventSettings(): Promise<EventSettings> {
   } catch (err) {
     console.warn("Could not query event_settings from Supabase, using cached/defaults:", err);
   }
-  return local;
+  // Only fall back to local if DB is unreachable
+  return getLocalSettings();
 }
 
 export async function updateEventSettings(settings: Partial<EventSettings>): Promise<EventSettings> {

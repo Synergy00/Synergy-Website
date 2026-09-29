@@ -289,11 +289,8 @@ export default function AdminEventControlsPage() {
       } else {
         alert(data.error || "Failed to wipe database");
       }
-    } catch {
-      setSaveSuccess("Database wiped.");
-      setIsResetModalOpen(false);
-      setResetConfirmText("");
-      setTimeout(() => setSaveSuccess(null), 4000);
+    } catch (err: any) {
+      alert(err?.message || "Network error: Failed to wipe database");
     } finally {
       setIsResetting(false);
     }

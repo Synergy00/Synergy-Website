@@ -17,12 +17,7 @@ export function verifyAdminCredentials(adminId: string, password: string): boole
     return false;
   }
 
-  // 1. Direct password match for default master password
-  if (password.trim() === "protohack2026admin") {
-    return true;
-  }
-
-  // 2. Bcrypt hash check if customized in env
+  // Bcrypt hash check against env-configured hash
   if (passwordHash) {
     try {
       if (bcrypt.compareSync(password, passwordHash)) {
