@@ -251,8 +251,8 @@ export function LiquidMetalButton({
                 background: "linear-gradient(180deg, #202020 0%, #000000 100%)",
                 boxShadow: isPressed
                   ? "inset 0px 2px 4px rgba(0, 0, 0, 0.4), inset 0px 1px 2px rgba(0, 0, 0, 0.3)"
-                  : "inset 0px 1px 1px rgba(255, 255, 255, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.5)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                  : "inset 0px 1.5px 1px rgba(255, 255, 255, 0.8), 0px 1px 3px rgba(0, 0, 0, 0.5)",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
                 transition:
                   "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s ease, height 0.4s ease, box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
