@@ -24,6 +24,7 @@ import { Input } from "@/components/shared/Input";
 import { Modal } from "@/components/shared/Modal";
 import { Chip } from "@/components/shared/Chip";
 import { createClient } from "@/lib/supabase/client";
+import { getProblemStatementById, OFFICIAL_PROBLEM_STATEMENTS } from "@/lib/problem-statements";
 
 interface TeamMember {
   id: string;
@@ -75,8 +76,6 @@ export default function AdminTeamsPage() {
           created_at,
           lead_id,
           problem_statement_id,
-          problem_statement_title,
-          problem_statement_domain,
           team_members (
             role,
             profiles (
@@ -100,6 +99,7 @@ export default function AdminTeamsPage() {
           }));
 
           const lead = membersList.find((m) => m.role === "lead");
+          const activePs = t.problem_statement_id ? getProblemStatementById(t.problem_statement_id) : undefined;
 
           return {
             id: t.id,
@@ -108,8 +108,8 @@ export default function AdminTeamsPage() {
             leadName: lead?.fullName || "No Lead",
             status: t.status || "round1",
             problemStatementId: t.problem_statement_id || null,
-            problemStatementTitle: t.problem_statement_title || "No problem statement selected",
-            problemStatementDomain: t.problem_statement_domain || "Uncategorized",
+            problemStatementTitle: activePs?.title || "No problem statement selected",
+            problemStatementDomain: activePs?.domain || "Uncategorized",
             members: membersList,
             createdAt: t.created_at,
           };
