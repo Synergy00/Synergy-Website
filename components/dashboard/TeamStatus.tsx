@@ -170,7 +170,7 @@ export function TeamStatus({
         </div>
 
         <a
-          href={globalSettings.whatsapp_group_link || "https://chat.whatsapp.com"}
+          href="https://chat.whatsapp.com/C9yfPuBdbzt54hGsmVqVQ7"
           target="_blank"
           rel="noopener noreferrer"
           className="px-4 py-2.5 rounded-xl bg-[#25D366] text-white hover:bg-[#1EBE5D] transition-all font-headline font-bold text-xs flex items-center gap-2 shadow-lg shadow-[#25D366]/30 shrink-0 hover:scale-105 active:scale-95"

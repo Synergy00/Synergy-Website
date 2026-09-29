@@ -14,7 +14,7 @@ export function WhatsAppFloatingButton({ className, showBanner = true }: WhatsAp
   const { settings } = useEventSettings();
   const [isHovered, setIsHovered] = useState(false);
 
-  const whatsappUrl = settings.whatsapp_group_link || "https://chat.whatsapp.com";
+  const whatsappUrl = "https://chat.whatsapp.com/C9yfPuBdbzt54hGsmVqVQ7";
 
   return (
     <div
