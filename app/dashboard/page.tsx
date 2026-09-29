@@ -188,14 +188,15 @@ export default function DashboardPage() {
               college: m.profiles?.college || "University",
             }));
 
+            const activePs = getProblemStatementById(teamData.problem_statement_id) || OFFICIAL_PROBLEM_STATEMENTS[0];
             setTeam({
               id: teamData.id,
               name: teamData.name,
               code: teamData.code,
               status: teamData.status,
-              problemStatementId: teamData.problem_statement_id || "PS01",
-              problemStatementTitle: teamData.problem_statement_title || "AI Campus Study & Peer Collaborative Copilot",
-              problemStatementDomain: teamData.problem_statement_domain || "AI & Intelligent Systems",
+              problemStatementId: activePs.id,
+              problemStatementTitle: activePs.title,
+              problemStatementDomain: activePs.domain,
               members: mappedMembers,
             });
           }
@@ -295,8 +296,6 @@ export default function DashboardPage() {
           lead_id: currentProfileId,
           status: "round1",
           problem_statement_id: chosenPs.id,
-          problem_statement_title: chosenPs.title,
-          problem_statement_domain: chosenPs.domain,
         })
         .select()
         .single();
