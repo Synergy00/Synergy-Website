@@ -183,7 +183,6 @@ export default function CompleteProfilePage() {
   return (
     <div className="min-h-screen bg-surface text-on-surface relative overflow-x-hidden">
       <AmbientGlow variant="full" />
-      <Navbar variant="landing" onLogout={handleLogout} />
 
       <main className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto relative z-10">
         {/* Success Modal / State */}
