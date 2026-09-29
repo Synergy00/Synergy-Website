@@ -29,7 +29,11 @@ export async function DELETE(
   }
 
   try {
-    // 2. Delete the user from auth.users (this cascades to profiles and team_members if foreign keys are set)
+    // 2. Explicitly delete from dependent tables to avoid ON DELETE RESTRICT foreign key constraint errors
+    await supabaseAdmin.from("team_members").delete().eq("user_id", userId);
+    await supabaseAdmin.from("profiles").delete().eq("id", userId);
+
+    // 3. Delete the user from auth.users
     const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (deleteUserError) {
