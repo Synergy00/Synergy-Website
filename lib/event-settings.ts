@@ -149,7 +149,7 @@ export async function fetchEventSettings(): Promise<EventSettings> {
         registration_deadline: data.registration_deadline ?? DEFAULT_EVENT_SETTINGS.registration_deadline,
         registration_open: data.registration_open !== undefined ? Boolean(data.registration_open) : DEFAULT_EVENT_SETTINGS.registration_open,
         server_clocks: sanitizeClocks(parsedClocks),
-        whatsapp_group_link: data.whatsapp_group_link || "",
+        whatsapp_group_link: data.whatsapp_group_link || DEFAULT_EVENT_SETTINGS.whatsapp_group_link,
         drive_upload_webhook_url: data.drive_upload_webhook_url || "",
       };
       saveLocalSettings(merged);
