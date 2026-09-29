@@ -63,7 +63,7 @@ export const DEFAULT_EVENT_SETTINGS: EventSettings = {
   registration_deadline: "2026-10-03T23:59:59+05:30",
   registration_open: true,
   server_clocks: DEFAULT_SERVER_CLOCKS,
-  whatsapp_group_link: "",
+  whatsapp_group_link: "https://chat.whatsapp.com/C9yfPuBdbzt54hGsmVqVQ7",
   drive_upload_webhook_url: "",
 };
 
