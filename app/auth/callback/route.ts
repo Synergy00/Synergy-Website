@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
           return request.cookies.getAll();
         },
         // This is critical: sets cookies directly on the response object
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
           cookiesToSet.forEach(({ name, value, options }) => {
             response.cookies.set(name, value, options);
           });

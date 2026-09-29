@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { NetworkStatus } from "@/components/shared/NetworkStatus";
+import { SessionGuardian } from "@/components/shared/SessionGuardian";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -43,6 +45,8 @@ export default function RootLayout({
       className={`dark ${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="bg-surface text-on-surface min-h-screen relative selection:bg-primary-container selection:text-on-primary">
+        <SessionGuardian />
+        <NetworkStatus />
         {children}
       </body>
     </html>
