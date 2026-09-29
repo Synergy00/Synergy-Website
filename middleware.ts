@@ -16,6 +16,13 @@ export async function middleware(request: NextRequest) {
     ? (host.includes("3001") ? "admin" : "public")
     : process.env.DEPLOYMENT_TYPE; // "public" | "admin" | undefined
 
+  // ─── OAUTH CALLBACK FALLBACK ──────────────────────────────────────────────
+  // If Supabase redirects to the root Site URL instead of /auth/callback due to configuration issues
+  if (pathname === "/" && request.nextUrl.searchParams.has("code")) {
+    const code = request.nextUrl.searchParams.get("code");
+    return NextResponse.redirect(new URL(`/auth/callback?code=${code}`, request.url));
+  }
+
   // ─── 0. DEPLOYMENT ISOLATION ──────────────────────────────────────────────
   // Public deployment: block ALL admin routes completely (return 404, not redirect)
   if (deploymentType === "public" && pathname.startsWith("/admin")) {
