@@ -822,7 +822,7 @@ export default function DashboardPage() {
                 isLoading={createLoading}
                 disabled={teamName.trim().length < 3}
               >
-                Confirm & Create Team
+                Confirm
               </Button>
             </div>
           </div>
