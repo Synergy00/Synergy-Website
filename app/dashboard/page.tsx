@@ -373,27 +373,8 @@ export default function DashboardPage() {
 
       setCreatedTeamCode(code);
     } catch (err: any) {
-      // Local demo fallback
-      const mockCode = "7K29X4";
-      setCreatedTeamCode(mockCode);
-      setTeam({
-        id: "demo-team-id",
-        name: teamName.trim(),
-        code: mockCode,
-        status: "round1",
-        problemStatementId: chosenPs.id,
-        problemStatementTitle: chosenPs.title,
-        problemStatementDomain: chosenPs.domain,
-        members: [
-          {
-            id: profile?.id || "demo-user-id",
-            fullName: profile?.fullName || "Alex Chen",
-            participantId: profile?.participantId || "PH26-00124",
-            role: "lead",
-            college: "SRM IST",
-          },
-        ],
-      });
+      console.error("Failed to create team:", err);
+      setCreateError(err?.message || "An unexpected error occurred while creating the team.");
     } finally {
       setCreateLoading(false);
     }
@@ -418,28 +399,8 @@ export default function DashboardPage() {
               leadName: (teamFound as any).profiles?.full_name || "Team Lead",
               memberCount: 2,
             });
-          } else {
-            // Mock preview for demo code "PHT01-DWFW" or "7K29X4"
-            if (cleanCode === "PHT01-DWFW" || cleanCode === "7K29X4") {
-              setJoinPreview({
-                name: "CyberForge",
-                leadName: "Rohan Gupta",
-                memberCount: 2,
-              });
-            } else {
-              setJoinError("Invalid team code. Please check with your team lead.");
-            }
-          }
         } catch {
-          if (cleanCode === "PHT01-DWFW" || cleanCode === "7K29X4") {
-            setJoinPreview({
-              name: "CyberForge",
-              leadName: "Rohan Gupta",
-              memberCount: 2,
-            });
-          } else {
-            setJoinError("Invalid team code. Please check with your team lead.");
-          }
+          setJoinError("Invalid team code. Please check with your team lead.");
         }
       };
       lookup();
@@ -456,33 +417,37 @@ export default function DashboardPage() {
     setJoinError(null);
 
     try {
-      const currentProfileId = profile?.id || "demo-user-id";
+      const currentProfileId = profile?.id;
+      if (!currentProfileId) throw new Error("No profile found");
+
+      // Find the team id
+      const { data: teamData, error: teamErr } = await supabase
+        .from("teams")
+        .select("id")
+        .eq("code", joinCode.toUpperCase())
+        .single();
+        
+      if (teamErr || !teamData) {
+         throw new Error("Team not found");
+      }
+
       // Insert membership
-      setTeam({
-        id: "joined-team-id",
-        name: joinPreview.name,
-        code: joinCode.toUpperCase(),
-        status: "round1",
-        members: [
-          {
-            id: "lead-id",
-            fullName: joinPreview.leadName,
-            participantId: "PH26-00100",
-            role: "lead",
-            college: "SRM IST",
-          },
-          {
-            id: currentProfileId,
-            fullName: profile?.fullName || "Alex Chen",
-            participantId: profile?.participantId || "PH26-00124",
-            role: "member",
-            college: "SRM IST",
-          },
-        ],
-      });
-      setJoinSuccess(`You have successfully joined ${joinPreview.name}!`);
-    } catch {
-      setJoinError("Failed to join team. The team might be full.");
+      const { error: joinErr } = await supabase
+        .from("team_members")
+        .insert({
+          team_id: teamData.id,
+          profile_id: currentProfileId,
+          role: "member"
+        });
+
+      if (joinErr) throw joinErr;
+
+      // Reload page to fetch full fresh team state
+      window.location.reload();
+      
+    } catch (err: any) {
+      console.error("Failed to join team:", err);
+      setJoinError(err?.message || "Failed to join team. The team might be full.");
     } finally {
       setJoinLoading(false);
     }
