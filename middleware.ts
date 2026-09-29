@@ -7,7 +7,14 @@ export async function middleware(request: NextRequest) {
   });
 
   const { pathname } = request.nextUrl;
-  const deploymentType = process.env.DEPLOYMENT_TYPE; // "public" | "admin" | undefined
+  const isLocalEnv = process.env.NODE_ENV === "development";
+  const host = request.headers.get("host") || "";
+  
+  // In local dev, Next.js Edge runtime caches process.env across concurrently instances.
+  // We use the port (3000 for public, 3001 for admin) to safely determine deployment type locally.
+  const deploymentType = isLocalEnv 
+    ? (host.includes("3001") ? "admin" : "public")
+    : process.env.DEPLOYMENT_TYPE; // "public" | "admin" | undefined
 
   // ─── 0. DEPLOYMENT ISOLATION ──────────────────────────────────────────────
   // Public deployment: block ALL admin routes completely (return 404, not redirect)
