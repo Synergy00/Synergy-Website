@@ -184,7 +184,7 @@ export default function CompleteProfilePage() {
     <div className="min-h-screen bg-surface text-on-surface relative overflow-x-hidden">
       <AmbientGlow variant="full" />
 
-      <main className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto relative z-10">
+      <main className="pt-10 pb-10 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto relative z-10">
         {/* Success Modal / State */}
         {successId ? (
           <div className="p-8 sm:p-10 rounded-2xl bg-surface-container/95 border border-primary/40 shadow-2xl backdrop-blur-xl text-center animate-in zoom-in-95 duration-200">
@@ -225,8 +225,8 @@ export default function CompleteProfilePage() {
           </div>
         ) : (
           /* Profile Form */
-          <div className="p-6 sm:p-10 rounded-2xl bg-surface-container/90 border border-outline-variant/30 shadow-2xl backdrop-blur-xl">
-            <div className="mb-8">
+          <div className="p-5 sm:p-8 rounded-2xl bg-surface-container/90 border border-outline-variant/30 shadow-2xl backdrop-blur-xl">
+            <div className="mb-6">
               <span className="text-xs uppercase font-headline font-bold tracking-widest text-primary">
                 STEP 2 OF 3 · ELIGIBILITY VERIFICATION
               </span>
@@ -245,10 +245,11 @@ export default function CompleteProfilePage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {/* 1. Full Name */}
-                <Input
+                <div className="col-span-2 sm:col-span-1">
+                  <Input
                   label="Full Name"
                   placeholder="e.g. Alex Chen"
                   value={formData.fullName}
@@ -257,9 +258,11 @@ export default function CompleteProfilePage() {
                   required
                   leftIcon={<User className="w-4 h-4" />}
                 />
+                </div>
 
                 {/* 2. Registration Number */}
-                <Input
+                <div className="col-span-2 sm:col-span-1">
+                  <Input
                   label="Registration Number"
                   placeholder="e.g. RA2311003010123"
                   value={formData.regNo}
@@ -269,9 +272,11 @@ export default function CompleteProfilePage() {
                   leftIcon={<Hash className="w-4 h-4" />}
                   helperText="Must match your college ID"
                 />
+                </div>
 
                 {/* 3. College Name */}
-                <Input
+                <div className="col-span-2 sm:col-span-1">
+                  <Input
                   label="College / University"
                   placeholder="e.g. SRM Institute of Science & Technology"
                   value={formData.college}
@@ -280,9 +285,10 @@ export default function CompleteProfilePage() {
                   required
                   leftIcon={<School className="w-4 h-4" />}
                 />
+                </div>
 
                 {/* 4. Year of Study */}
-                <div className="space-y-1.5 text-left">
+                <div className="col-span-2 sm:col-span-1 space-y-1.5 text-left">
                   <label className="block text-xs uppercase tracking-wider font-semibold text-outline">
                     Year of Study <span className="text-primary">*</span>
                   </label>
@@ -293,7 +299,7 @@ export default function CompleteProfilePage() {
                     <select
                       value={formData.yearOfStudy}
                       onChange={(e) => handleChange("yearOfStudy", e.target.value)}
-                      className="w-full pl-11 pr-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/40 text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-body text-sm cursor-pointer"
+                      className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-body text-sm cursor-pointer"
                     >
                       <option value="1">1st Year (01)</option>
                       <option value="2">2nd Year (02)</option>
@@ -304,7 +310,8 @@ export default function CompleteProfilePage() {
                 </div>
 
                 {/* 5. Branch */}
-                <Input
+                <div className="col-span-1">
+                  <Input
                   label="Branch"
                   placeholder="e.g. Computer Science (CSE)"
                   value={formData.branch}
@@ -313,9 +320,11 @@ export default function CompleteProfilePage() {
                   required
                   leftIcon={<BookOpen className="w-4 h-4" />}
                 />
+                </div>
 
                 {/* 6. Department */}
-                <Input
+                <div className="col-span-1">
+                  <Input
                   label="Department"
                   placeholder="e.g. School of Computing"
                   value={formData.department}
@@ -324,9 +333,11 @@ export default function CompleteProfilePage() {
                   required
                   leftIcon={<Building className="w-4 h-4" />}
                 />
+                </div>
 
                 {/* 7. Section */}
-                <Input
+                <div className="col-span-1">
+                  <Input
                   label="Section"
                   placeholder="e.g. B2 or Section A"
                   value={formData.section}
@@ -335,9 +346,11 @@ export default function CompleteProfilePage() {
                   required
                   leftIcon={<Grid className="w-4 h-4" />}
                 />
+                </div>
 
                 {/* 8. Contact Number */}
-                <Input
+                <div className="col-span-1">
+                  <Input
                   label="Contact Number (WhatsApp)"
                   placeholder="9876543210"
                   value={formData.contact}
@@ -347,9 +360,10 @@ export default function CompleteProfilePage() {
                   leftIcon={<Phone className="w-4 h-4" />}
                   helperText="10-digit Indian number"
                 />
+                </div>
 
                 {/* 9. Email (Locked) */}
-                <div className="sm:col-span-2">
+                <div className="col-span-2">
                   <Input
                     label="Verified Email"
                     value={userEmail}
