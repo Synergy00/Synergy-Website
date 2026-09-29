@@ -19,9 +19,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/auth?error=Authentication+failed`);
   }
 
-  // Build response early so we can attach cookies to it
-  let redirectUrl = `${baseUrl}${next}`;
-  let response = NextResponse.redirect(redirectUrl);
+  // 1. We must create a dummy response object to hold cookies during exchange
+  const cookieJar = new Map<string, { value: string; options?: any }>();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,10 +30,9 @@ export async function GET(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        // This is critical: sets cookies directly on the response object
         setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
+            cookieJar.set(name, { value, options });
           });
         },
       },
@@ -48,11 +46,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/auth?error=Authentication+failed`);
   }
 
-  // Check if user already has a profile to decide where to send them
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  // Determine final redirect URL
+  let finalRedirect = `${baseUrl}${next}`;
+  
+  const { data: { user } } = await supabase.auth.getUser();
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -61,15 +58,15 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (!profile) {
-      // New user — send to profile creation
-      response = NextResponse.redirect(`${baseUrl}/profile/complete`);
-      // Must re-attach cookies to the new response
-      supabase.auth.getUser(); // triggers cookie re-set on new response... handled below
-      request.cookies.getAll().forEach(({ name, value }) => {
-        response.cookies.set(name, value);
-      });
+      finalRedirect = `${baseUrl}/profile/complete`;
     }
   }
+
+  // Create final response and attach all gathered cookies
+  const response = NextResponse.redirect(finalRedirect);
+  cookieJar.forEach(({ value, options }, name) => {
+    response.cookies.set(name, value, options);
+  });
 
   return response;
 }
