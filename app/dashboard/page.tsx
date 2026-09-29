@@ -83,6 +83,7 @@ export default function DashboardPage() {
     fullName: string;
     participantId: string;
     email: string;
+    college: string;
   } | null>(null);
 
   const [team, setTeam] = useState<TeamData | null>(null);
@@ -157,6 +158,7 @@ export default function DashboardPage() {
             fullName: profileData.full_name,
             participantId: profileData.participant_id,
             email: profileData.email || currentUserEmail,
+            college: profileData.college || "Unknown College",
           });
         }
 
