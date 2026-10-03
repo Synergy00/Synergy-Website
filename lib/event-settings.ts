@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export type ClockPlacement = "landing_hero" | "dashboard" | "round_1" | "round_2" | "all";
+export type ClockPlacementArea = "landing_hero" | "dashboard" | "round_1" | "round_2";
+// ClockPlacement is now an array so a single clock can appear in multiple areas simultaneously
+export type ClockPlacement = ClockPlacementArea[];
 
 export interface ServerClock {
   id: string;
@@ -32,24 +34,24 @@ export interface EventSettings {
 
 export const DEFAULT_SERVER_CLOCKS: ServerClock[] = [
   {
-    id: "clock_registration",
-    title: "REGISTRATION CLOSES IN",
-    target_time: "2026-10-03T23:59:59+05:30",
-    placement: "landing_hero",
+    id: "clock_round1_sprint",
+    title: "ROUND 1 ENDS IN",
+    target_time: "2026-10-07T23:59:59+05:30",
+    placement: ["landing_hero", "dashboard"],
     is_active: true,
-    action_on_expire: "stop_registrations",
-    expired_message: "REGISTRATIONS STOPPED",
-    description: "Countdown for registration closure on landing page hero.",
+    action_on_expire: "lock_round_1",
+    expired_message: "ROUND 1 CLOSED",
+    description: "Round 1 build window countdown shown on landing and dashboard.",
   },
   {
     id: "clock_round1_2_sprint",
     title: "ROUND 1 BUILD WINDOW CLOSES IN",
     target_time: "2026-10-07T23:59:59+05:30",
-    placement: "round_1",
+    placement: ["round_1"],
     is_active: true,
     action_on_expire: "lock_round_1",
     expired_message: "ROUND 1 SUBMISSION CLOSED",
-    description: "Server build clock active during Round 1 across participant pages.",
+    description: "Server build clock active on the Round 1 submission page.",
   },
 ];
 
@@ -73,9 +75,16 @@ const EVENT_NAME = "protohack_settings_updated";
 function sanitizeClocks(clocks: any[]): ServerClock[] {
   if (!Array.isArray(clocks) || clocks.length === 0) return DEFAULT_SERVER_CLOCKS;
   return clocks.map((c) => {
-    // Ensure the round 1 build window clock is assigned to round_1, not leaking onto landing hero
-    if (c.id === "clock_round1_2_sprint" && (c.placement === "all" || !c.placement)) {
-      return { ...c, placement: "round_1" as ClockPlacement };
+    // Migrate legacy string placements to array format
+    if (typeof c.placement === "string") {
+      if (c.placement === "all") {
+        return { ...c, placement: ["landing_hero", "dashboard", "round_1", "round_2"] as ClockPlacement };
+      }
+      return { ...c, placement: [c.placement] as ClockPlacement };
+    }
+    // Ensure placement is always an array
+    if (!Array.isArray(c.placement)) {
+      return { ...c, placement: ["dashboard"] as ClockPlacement };
     }
     return c;
   });

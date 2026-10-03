@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { Clock, Lock, Sparkles, AlertCircle, PlayCircle, Timer } from "lucide-react";
-import { useEventSettings, ServerClock, ClockPlacement } from "@/lib/event-settings";
+import { useEventSettings, ServerClock, ClockPlacementArea } from "@/lib/event-settings";
 import { cn } from "@/lib/utils";
 
 interface ServerClockRendererProps {
-  placement: ClockPlacement;
+  placement: ClockPlacementArea;
   onClockExpire?: (clock: ServerClock) => void;
   className?: string;
 }
@@ -131,13 +131,11 @@ export function ServerClockRenderer({
 }: ServerClockRendererProps) {
   const { settings } = useEventSettings();
 
+  // A clock matches if it's active and its placements array includes the requested area
   const matchingClocks = (settings.server_clocks || []).filter((clock) => {
     if (!clock.is_active) return false;
-    if (placement === "landing_hero") {
-      return clock.placement === "landing_hero";
-    }
-    if (placement === "all") return true;
-    return clock.placement === placement || clock.placement === "all";
+    const placements = Array.isArray(clock.placement) ? clock.placement : [clock.placement];
+    return placements.includes(placement as any);
   });
 
   if (matchingClocks.length === 0) return null;
@@ -150,3 +148,4 @@ export function ServerClockRenderer({
     </div>
   );
 }
+

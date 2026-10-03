@@ -16,7 +16,6 @@ import {
   Sparkles,
   ArrowRight,
   Zap,
-  Lock,
 } from "lucide-react";
 import { Button } from "./Button";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
@@ -168,10 +167,9 @@ export function Navbar({ variant = "landing", userProfile, onLogout }: NavbarPro
                 <LiquidMetalButton label="Register" />
               </Link>
             ) : (
-              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/60 border border-outline-variant/30 text-xs font-headline font-semibold text-outline">
-                <Lock className="w-3 h-3 text-error" />
-                <span>Closed</span>
-              </div>
+              <Link href="/auth" className="hidden sm:flex h-[46px] items-center scale-90 origin-right">
+                <LiquidMetalButton label="Participant Login" />
+              </Link>
             )
           )}
 
@@ -312,10 +310,9 @@ export function Navbar({ variant = "landing", userProfile, onLogout }: NavbarPro
                       <LiquidMetalButton label="Register" />
                     </Link>
                   ) : (
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container-high/60 border border-outline-variant/30 text-xs font-headline font-semibold text-outline">
-                      <Lock className="w-3.5 h-3.5 text-error" />
-                      <span>Registrations Stopped</span>
-                    </div>
+                    <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
+                      <LiquidMetalButton label="Participant Login" />
+                    </Link>
                   )}
                 </div>
               </>

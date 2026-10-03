@@ -176,15 +176,9 @@ export default function LandingPage() {
 
         {/* Primary CTA */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          {isRegistrationClosed ? (
-            <Link href="/auth?tab=login" className="flex justify-center items-center h-[46px]">
-              <LiquidMetalButton label="Participant Login" />
-            </Link>
-          ) : (
-            <Link href="/auth?tab=register" className="flex justify-center items-center h-[46px]">
-              <LiquidMetalButton label="Register Now" />
-            </Link>
-          )}
+          <Link href="/auth" className="flex justify-center items-center h-[46px]">
+            <LiquidMetalButton label="Participant Login" />
+          </Link>
         </div>
       </section>
 

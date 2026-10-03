@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Zap, ArrowLeft, Mail, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Mail, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { AmbientGlow } from "@/components/shared/AmbientGlow";
 import { Input } from "@/components/shared/Input";
 import { Button } from "@/components/shared/Button";
@@ -13,9 +13,11 @@ import { useEventSettings } from "@/lib/event-settings";
 function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialTab = searchParams.get("tab") === "register" ? "register" : "signin";
+  // Tab is permanently locked to signin — new account creation is disabled
+  // const initialTab = searchParams.get("tab") === "register" ? "register" : "signin";
+  const initialTab: "signin" = "signin";
 
-  const [tab, setTab] = useState<"signin" | "register">(initialTab);
+  const [tab] = useState<"signin" | "register">(initialTab);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,17 +25,20 @@ function AuthForm() {
   const [loading, setLoading] = useState(false);
 
   const { settings } = useEventSettings();
-  const isRegistrationClosed =
-    !settings.registration_open ||
-    (settings.registration_deadline
-      ? new Date(settings.registration_deadline).getTime() <= Date.now()
-      : false);
+  // Registration permanently closed — new account creation commented out
+  // const isRegistrationClosed =
+  //   !settings.registration_open ||
+  //   (settings.registration_deadline
+  //     ? new Date(settings.registration_deadline).getTime() <= Date.now()
+  //     : false);
+  const isRegistrationClosed = true;
 
-  useEffect(() => {
-    if (searchParams.get("tab") === "register") {
-      setTab("register");
-    }
-  }, [searchParams]);
+  // No longer needed — tab is always signin
+  // useEffect(() => {
+  //   if (searchParams.get("tab") === "register") {
+  //     setTab("register");
+  //   }
+  // }, [searchParams]);
 
   const supabase = createClient();
 
@@ -41,6 +46,13 @@ function AuthForm() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+
+    // Hard block on registration if closed
+    if (tab === "register" && isRegistrationClosed) {
+      setError("Registrations are closed. Please sign in if you already have an account.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -105,11 +117,18 @@ function AuthForm() {
 
   const handleGoogleAuth = async () => {
     setError(null);
+    // Block Google sign-up when registration is closed
+    if (tab === "register" && isRegistrationClosed) {
+      setError("Registrations are closed. Please sign in if you already have an account.");
+      return;
+    }
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: process.env.NODE_ENV === "development" 
+            ? `${window.location.origin}/auth/callback` 
+            : `https://protohack.vercel.app/auth/callback`,
         },
       });
       if (error) setError(error.message);
@@ -117,6 +136,9 @@ function AuthForm() {
       setError(err?.message || "Google sign in failed.");
     }
   };
+
+  // New account creation panel is commented out — registrations permanently closed
+  // if (tab === "register" && isRegistrationClosed) { ... }
 
   return (
     <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl bg-surface-container/95 border border-outline-variant/40 shadow-2xl backdrop-blur-xl relative z-10">
@@ -126,14 +148,6 @@ function AuthForm() {
           {tab === "register" ? "Sign Up" : "Sign In"}
         </h1>
       </div>
-
-      {/* Alert Messages */}
-      {tab === "register" && isRegistrationClosed && (
-        <div className="mb-4 p-3 rounded-xl bg-error-container/30 border border-error/40 flex items-start gap-2 text-xs text-error">
-          <Lock className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>Registrations for PROTOHACK are officially closed. Existing participants can sign in below.</span>
-        </div>
-      )}
 
       {error && (
         <div className="mb-4 p-3 rounded-xl bg-error-container/30 border border-error/40 flex items-center gap-2 text-xs text-error">
@@ -172,20 +186,13 @@ function AuthForm() {
           helperText={tab === "register" ? "Minimum 8 characters" : undefined}
         />
 
-
-
         <Button
           type="submit"
           variant="primary"
           className="w-full mt-2"
           isLoading={loading}
-          disabled={tab === "register" && isRegistrationClosed}
         >
-          {tab === "register"
-            ? isRegistrationClosed
-              ? "Registrations Stopped"
-              : "Create Account"
-            : "Sign In"}
+          {tab === "register" ? "Create Account" : "Sign In"}
         </Button>
       </form>
 
@@ -198,7 +205,7 @@ function AuthForm() {
           <span className="bg-surface-container px-2">or continue with</span>
         </div>
       </div>
-      
+
       <Button
         type="button"
         variant="secondary"
@@ -214,24 +221,22 @@ function AuthForm() {
         Google
       </Button>
 
-      {/* Footer text */}
-      <div className="text-center mt-6">
-        {tab === "register" ? (
-          <p className="text-xs text-outline font-body">
-            Already have an account?{" "}
-            <button type="button" onClick={() => setTab("signin")} className="text-primary hover:underline font-semibold">
-              Sign In
-            </button>
-          </p>
-        ) : (
-          <p className="text-xs text-outline font-body">
-            Don't have an account?{" "}
-            <button type="button" onClick={() => setTab("register")} className="text-primary hover:underline font-semibold">
-              Sign Up
-            </button>
-          </p>
-        )}
-      </div>
+      {/* Footer text — Sign Up link removed (new account creation disabled) */}
+      {/* {tab === "register" ? (
+        <p className="text-xs text-outline font-body">
+          Already have an account?{" "}
+          <button type="button" onClick={() => setTab("signin")} className="text-primary hover:underline font-semibold">
+            Sign In
+          </button>
+        </p>
+      ) : (
+        <p className="text-xs text-outline font-body">
+          Don't have an account?{" "}
+          <button type="button" onClick={() => setTab("register")} className="text-primary hover:underline font-semibold">
+            Sign Up
+          </button>
+        </p>
+      )} */}
     </div>
   );
 }

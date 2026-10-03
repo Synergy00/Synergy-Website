@@ -38,15 +38,15 @@ import {
   EventSettings,
   ServerClock,
   ClockPlacement,
+  ClockPlacementArea,
   DEFAULT_SERVER_CLOCKS,
 } from "@/lib/event-settings";
 
-const PLACEMENT_OPTIONS: { value: ClockPlacement; label: string; desc: string }[] = [
-  { value: "landing_hero", label: "Landing Page Hero", desc: "Shown on public landing page hero next to Register CTA" },
-  { value: "dashboard", label: "Participant Dashboard", desc: "Shown at the top of participant dashboard" },
-  { value: "round_1", label: "Round 1 Page", desc: "Shown during Round 1 Online Sprint" },
-  { value: "round_2", label: "Round 2 Page", desc: "Shown during Round 2 Offline Finals" },
-  { value: "all", label: "All Participant Pages", desc: "Shown on Dashboard, Round 1, and Round 2 pages" },
+const PLACEMENT_OPTIONS: { value: ClockPlacementArea; label: string; desc: string }[] = [
+  { value: "landing_hero", label: "Landing Page Hero", desc: "Public landing page hero section" },
+  { value: "dashboard", label: "Participant Dashboard", desc: "Top of participant dashboard" },
+  { value: "round_1", label: "Round 1 Page", desc: "Round 1 Online Sprint submission page" },
+  { value: "round_2", label: "Round 2 Page", desc: "Round 2 Offline Finals page" },
 ];
 
 export default function AdminEventControlsPage() {
@@ -64,7 +64,8 @@ export default function AdminEventControlsPage() {
   // Round 1 & 2 Access Switches
   const [round1Unlocked, setRound1Unlocked] = useState(false);
   const [round2Open, setRound2Open] = useState(true);
-  const [pendingToggle, setPendingToggle] = useState<"round1" | "round2" | null>(null);
+  const [registrationOpen, setRegistrationOpen] = useState(true);
+  const [pendingToggle, setPendingToggle] = useState<"round1" | "round2" | "registration" | null>(null);
 
   // Clock Editor Modal State
   const [isClockModalOpen, setIsClockModalOpen] = useState(false);
@@ -72,7 +73,7 @@ export default function AdminEventControlsPage() {
   const [clockTitle, setClockTitle] = useState("");
   const [clockDate, setClockDate] = useState("2026-10-04");
   const [clockTime, setClockTime] = useState("09:00");
-  const [clockPlacement, setClockPlacement] = useState<ClockPlacement>("dashboard");
+  const [clockPlacement, setClockPlacement] = useState<ClockPlacement>(["dashboard"]);
   const [clockExpiredMsg, setClockExpiredMsg] = useState("TIME UP");
   const [clockDesc, setClockDesc] = useState("");
   const [clockIsActive, setClockIsActive] = useState(true);
@@ -110,6 +111,7 @@ export default function AdminEventControlsPage() {
           setDriveWebhookUrl(data.drive_upload_webhook_url || "");
           setRound1Unlocked(data.round1_unlocked ?? false);
           setRound2Open(data.round2_open ?? true);
+          setRegistrationOpen(data.registration_open ?? true);
           return;
         }
       }
@@ -121,6 +123,7 @@ export default function AdminEventControlsPage() {
       setDriveWebhookUrl(data.drive_upload_webhook_url || "");
       setRound1Unlocked(data.round1_unlocked ?? false);
       setRound2Open(data.round2_open ?? true);
+      setRegistrationOpen(data.registration_open ?? true);
     } catch (err) {
       console.error("Failed to load settings:", err);
     } finally {
@@ -137,7 +140,7 @@ export default function AdminEventControlsPage() {
     setClockTitle("ROUND 1 SPRINT CLOSES IN");
     setClockDate("2026-10-07");
     setClockTime("23:59");
-    setClockPlacement("all");
+    setClockPlacement(["dashboard"]);
     setClockExpiredMsg("SUBMISSION WINDOW CLOSED");
     setClockDesc("Server countdown for Round 1 build sprint.");
     setClockIsActive(true);
@@ -147,7 +150,9 @@ export default function AdminEventControlsPage() {
   const openEditClockModal = (clock: ServerClock) => {
     setEditingClockId(clock.id);
     setClockTitle(clock.title);
-    setClockPlacement(clock.placement);
+    // Normalize to array
+    const placements = Array.isArray(clock.placement) ? clock.placement : [clock.placement as any];
+    setClockPlacement(placements as ClockPlacement);
     setClockExpiredMsg(clock.expired_message || "TIME UP");
     setClockDesc(clock.description || "");
     setClockIsActive(clock.is_active);
@@ -169,7 +174,7 @@ export default function AdminEventControlsPage() {
 
   const handleSaveClock = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clockDate || !clockTime) return;
+    if (!clockDate || !clockTime || clockPlacement.length === 0) return;
 
     const isoString = `${clockDate}T${clockTime}:00+05:30`;
     let updatedClocks: ServerClock[];
@@ -203,15 +208,6 @@ export default function AdminEventControlsPage() {
 
     setClocks(updatedClocks);
     await updateEventSettings({ server_clocks: updatedClocks });
-
-    // Also update legacy registration clock if target was landing_hero
-    if (clockPlacement === "landing_hero") {
-      await updateEventSettings({
-        registration_deadline: isoString,
-        registration_label: clockTitle,
-        registration_open: clockIsActive,
-      });
-    }
 
     setIsClockModalOpen(false);
     setSaveSuccess(
@@ -253,6 +249,15 @@ export default function AdminEventControlsPage() {
       setRound2Open(nextVal);
       await updateEventSettings({ round2_open: nextVal });
       setSaveSuccess(`Round 2 ${nextVal ? "unlocked" : "locked"} globally!`);
+    } else if (pendingToggle === "registration") {
+      const nextVal = !registrationOpen;
+      setRegistrationOpen(nextVal);
+      await updateEventSettings({ registration_open: nextVal });
+      setSaveSuccess(
+        nextVal
+          ? "Registrations are now OPEN. New accounts can be created."
+          : "Registrations are now CLOSED. No new accounts can be created."
+      );
     }
     setPendingToggle(null);
     setTimeout(() => setSaveSuccess(null), 3500);
@@ -384,7 +389,6 @@ export default function AdminEventControlsPage() {
         {/* Clocks Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {clocks.map((clock) => {
-            const placementObj = PLACEMENT_OPTIONS.find((p) => p.value === clock.placement);
             const dateStr = new Date(clock.target_time).toLocaleString("en-IN", {
               timeZone: "Asia/Kolkata",
               dateStyle: "medium",
@@ -434,11 +438,18 @@ export default function AdminEventControlsPage() {
                 </div>
 
                 <div className="p-3 rounded-xl bg-surface-container-lowest/80 border border-outline-variant/20 mb-4 space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-outline">Display Placement:</span>
-                    <span className="font-semibold text-on-surface px-2 py-0.5 rounded bg-surface-container-high text-[11px]">
-                      {placementObj?.label || clock.placement}
-                    </span>
+                  <div className="flex items-start justify-between text-xs gap-2">
+                    <span className="text-outline shrink-0">Display On:</span>
+                    <div className="flex flex-wrap gap-1 justify-end">
+                      {(Array.isArray(clock.placement) ? clock.placement : [clock.placement]).map((p: any) => {
+                        const opt = PLACEMENT_OPTIONS.find((o) => o.value === p);
+                        return (
+                          <span key={p} className="font-semibold text-on-surface px-1.5 py-0.5 rounded bg-primary-container/20 border border-primary/20 text-[10px] text-primary">
+                            {opt?.label || p}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-outline">Expired Badge:</span>
@@ -655,12 +666,43 @@ export default function AdminEventControlsPage() {
               Round Access Switches
             </h2>
             <p className="text-xs text-outline font-body">
-              Lock or unlock round pages instantly without modifying database records.
+              Lock or unlock round pages and registration instantly without modifying database records.
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Registration Gate Toggle */}
+          <div className="p-6 rounded-xl bg-surface-container-low border border-outline-variant/30 flex flex-col justify-between md:col-span-2">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold font-headline text-base text-on-surface">
+                    Registration Gate
+                  </span>
+                  <Chip
+                    variant={registrationOpen ? "success" : "error"}
+                    pulse={registrationOpen}
+                  >
+                    {registrationOpen ? "OPEN" : "CLOSED"}
+                  </Chip>
+                </div>
+              </div>
+              <p className="text-xs text-outline font-body leading-relaxed mb-6">
+                Controls whether new participants can create accounts and sign up. When closed, the Sign Up page shows a <strong>"Registrations Closed"</strong> message and all new account creation (email + Google) is blocked. Existing participants can still sign in normally.
+              </p>
+            </div>
+
+            <Button
+              variant={registrationOpen ? "destructive" : "primary"}
+              size="sm"
+              onClick={() => setPendingToggle("registration")}
+              leftIcon={registrationOpen ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+            >
+              {registrationOpen ? "Close Registrations (Block New Sign-Ups)" : "Reopen Registrations"}
+            </Button>
+          </div>
+
           {/* Round 1 Toggle */}
           <div className="p-6 rounded-xl bg-surface-container-low border border-outline-variant/30 flex flex-col justify-between">
             <div>
@@ -785,27 +827,48 @@ export default function AdminEventControlsPage() {
             />
           </div>
 
-          {/* Placement Selector */}
+          {/* Placement Selector — multi-select checkboxes */}
           <div>
-            <label className="block text-xs font-semibold text-outline uppercase tracking-wider mb-2">
-              Display Placement Form / Target Location:
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-semibold text-outline uppercase tracking-wider">
+                Display On <span className="text-primary">*</span>
+              </label>
+              <span className="text-[10px] text-outline font-body">
+                {clockPlacement.length === 0 ? "Select at least one" : `${clockPlacement.length} selected`}
+              </span>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {PLACEMENT_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setClockPlacement(opt.value)}
-                  className={`p-3 rounded-xl border text-left transition-all ${
-                    clockPlacement === opt.value
-                      ? "bg-primary-container/15 border-primary text-on-surface ring-1 ring-primary"
-                      : "bg-surface-container-low border-outline-variant/30 text-outline hover:border-outline-variant/60"
-                  }`}
-                >
-                  <div className="text-xs font-bold text-on-surface">{opt.label}</div>
-                  <div className="text-[10px] text-outline mt-0.5">{opt.desc}</div>
-                </button>
-              ))}
+              {PLACEMENT_OPTIONS.map((opt) => {
+                const isSelected = clockPlacement.includes(opt.value);
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setClockPlacement((prev) =>
+                        isSelected
+                          ? prev.filter((p) => p !== opt.value)
+                          : [...prev, opt.value]
+                      );
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all flex items-start gap-2.5 ${
+                      isSelected
+                        ? "bg-primary-container/15 border-primary ring-1 ring-primary"
+                        : "bg-surface-container-low border-outline-variant/30 text-outline hover:border-outline-variant/60"
+                    }`}
+                  >
+                    <div className={`w-4 h-4 mt-0.5 rounded flex items-center justify-center shrink-0 border transition-colors ${
+                      isSelected ? "bg-primary border-primary" : "border-outline-variant/50 bg-surface-container-lowest"
+                    }`}>
+                      {isSelected && <Check className="w-2.5 h-2.5 text-on-primary" />}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-on-surface">{opt.label}</div>
+                      <div className="text-[10px] text-outline mt-0.5">{opt.desc}</div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -877,7 +940,11 @@ export default function AdminEventControlsPage() {
             <div className="text-xs text-on-surface font-body">
               Are you sure you want to change the status of{" "}
               <strong>
-                {pendingToggle === "round1" ? "Round 1 Online Sprint" : "Round 2 Shortlist Visibility"}
+                {pendingToggle === "round1"
+                  ? "Round 1 Online Sprint"
+                  : pendingToggle === "round2"
+                  ? "Round 2 Shortlist Visibility"
+                  : "Registration Gate"}
               </strong>
               ? This takes effect immediately on all participant browsers.
             </div>

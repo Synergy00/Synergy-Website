@@ -70,6 +70,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/auth/callback?code=${code}`, request.url));
   }
 
+  // If the OAuth callback accidentally lands on the admin domain, bounce it over to the public domain
+  if (deploymentType === "admin" && pathname === "/auth/callback" && request.nextUrl.searchParams.has("code")) {
+    const code = request.nextUrl.searchParams.get("code");
+    const next = request.nextUrl.searchParams.get("next") || "/dashboard";
+    return NextResponse.redirect(`https://protohack.vercel.app/auth/callback?code=${code}&next=${next}`);
+  }
+
   // ─── 0. DEPLOYMENT ISOLATION ──────────────────────────────────────────────
   // Public deployment: block ALL admin routes completely (return 404, not redirect)
   if (deploymentType === "public" && pathname.startsWith("/admin")) {

@@ -9,11 +9,11 @@ export async function GET(request: NextRequest) {
   // Use the forwarded host header to build the correct origin in production (fixes http vs https mismatch)
   const forwardedHost = request.headers.get("x-forwarded-host");
   const isLocalEnv = process.env.NODE_ENV === "development";
+  // Production: always redirect to the participant-facing domain, never admin
+  const PRODUCTION_URL = "https://protohack.vercel.app";
   const baseUrl = isLocalEnv
     ? origin
-    : forwardedHost
-    ? `https://${forwardedHost}`
-    : origin;
+    : PRODUCTION_URL;
 
   if (!code) {
     return NextResponse.redirect(`${baseUrl}/auth?error=Authentication+failed`);
