@@ -62,7 +62,12 @@ function AuthForm() {
       });
 
       if (signInError) {
-        setError(signInError.message);
+        // Supabase returns "Invalid login credentials" for both wrong passwords and non-existent accounts
+        if (signInError.message.includes("Invalid login credentials")) {
+          setError("Account doesn't exist or invalid credentials provided.");
+        } else {
+          setError(signInError.message);
+        }
         setLoading(false);
         return;
       }
