@@ -32,7 +32,7 @@ import { ServerClockRenderer } from "@/components/shared/ServerClockRenderer";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const DRIVE_UPLOAD_FOLDER = "https://drive.google.com/drive/folders/1Zp6j2BhqX8pHZwNCkftzWmFGC6MhTHB8?usp=sharing";
-const PPT_TEMPLATE_URL = ""; // Add template URL here when ready
+const PPT_TEMPLATE_URL = "https://drive.google.com/drive/folders/1uoxwbjFep0hgwKEFHBAncwvSGXJMU7wV";
 
 const SUBMISSION_GUIDELINES = [
   "Upload your PPT/PDF file to the shared Google Drive folder above using your team's Google account.",
@@ -338,7 +338,7 @@ export default function Round1Page() {
                       <h2 className="text-base font-headline font-bold text-on-surface">PPT Template</h2>
                     </div>
                     <p className="text-xs text-outline mb-4">
-                      Use the official Synergy PPT template for your submission. This ensures a uniform format for all teams.
+                      See rules and regulations from there as well, and check the PPT template there.
                     </p>
                     <a
                       href={PPT_TEMPLATE_URL}
@@ -347,7 +347,7 @@ export default function Round1Page() {
                       className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold font-headline hover:bg-primary-hover transition-colors"
                     >
                       <Download className="w-4 h-4" />
-                      Download PPT Template
+                      Access Drive Folder
                     </a>
                   </div>
                 ) : (
