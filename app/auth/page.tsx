@@ -56,56 +56,29 @@ function AuthForm() {
     setLoading(true);
 
     try {
-      if (tab === "register") {
-        if (password.length < 8) {
-          setError("Password must be at least 8 characters long.");
-          setLoading(false);
-          return;
-        }
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-        });
+      if (signInError) {
+        setError(signInError.message);
+        setLoading(false);
+        return;
+      }
 
-        if (signUpError) {
-          setError(signUpError.message);
-          setLoading(false);
-          return;
-        }
+      if (data.session) {
+        // Check if profile is complete
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("id", data.session.user.id)
+          .single();
 
-        // Check if user already exists or session established
-        if (data.session) {
-          router.push("/profile/complete");
+        if (profile) {
+          router.push("/dashboard");
         } else {
-          setSuccess("Account created! Check your email for verification link or sign in.");
-          setTab("signin");
-        }
-      } else {
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (signInError) {
-          setError(signInError.message);
-          setLoading(false);
-          return;
-        }
-
-        if (data.session) {
-          // Check if profile is complete
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("id", data.session.user.id)
-            .single();
-
-          if (profile) {
-            router.push("/dashboard");
-          } else {
-            router.push("/profile/complete");
-          }
+          router.push("/profile/complete");
         }
       }
     } catch (err: any) {
