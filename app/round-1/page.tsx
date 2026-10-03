@@ -32,7 +32,7 @@ import { ServerClockRenderer } from "@/components/shared/ServerClockRenderer";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const DRIVE_UPLOAD_FOLDER = "https://drive.google.com/drive/folders/1Zp6j2BhqX8pHZwNCkftzWmFGC6MhTHB8?usp=sharing";
-const PPT_TEMPLATE_URL = "https://drive.google.com/drive/folders/1uoxwbjFep0hgwKEFHBAncwvSGXJMU7wV";
+const PPT_TEMPLATE_URL = "https://drive.google.com/drive/folders/1uoxwbjFep0hgwKEFHBAncwvSGXJMU7wV?usp=sharing";
 
 const SUBMISSION_GUIDELINES = [
   "Upload your PPT/PDF file to the shared Google Drive folder above using your team's Google account.",
