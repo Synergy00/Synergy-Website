@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Mail, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
@@ -34,12 +34,13 @@ function AuthForm() {
   //     : false);
   const isRegistrationClosed = true;
 
-  // No longer needed — tab is always signin
-  // useEffect(() => {
-  //   if (searchParams.get("tab") === "register") {
-  //     setTab("register");
-  //   }
-  // }, [searchParams]);
+  // Capture URL error parameters and display them
+  useEffect(() => {
+    const urlError = searchParams.get("error");
+    if (urlError) {
+      setError(urlError);
+    }
+  }, [searchParams]);
 
   const supabase = createClient();
 
