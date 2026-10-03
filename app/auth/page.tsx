@@ -7,6 +7,7 @@ import { ArrowLeft, Mail, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { AmbientGlow } from "@/components/shared/AmbientGlow";
 import { Input } from "@/components/shared/Input";
 import { Button } from "@/components/shared/Button";
+import { Modal } from "@/components/shared/Modal";
 import { createClient } from "@/lib/supabase/client";
 import { useEventSettings } from "@/lib/event-settings";
 
@@ -93,13 +94,11 @@ function AuthForm() {
     }
   };
 
-  const handleGoogleAuth = async () => {
+  const [showGoogleWarning, setShowGoogleWarning] = useState(false);
+
+  const proceedWithGoogleAuth = async () => {
     setError(null);
-    // Block Google sign-up when registration is closed
-    if (tab === "register" && isRegistrationClosed) {
-      setError("Registrations are closed. Please sign in if you already have an account.");
-      return;
-    }
+    setShowGoogleWarning(false);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -115,11 +114,28 @@ function AuthForm() {
     }
   };
 
-  // New account creation panel is commented out — registrations permanently closed
-  // if (tab === "register" && isRegistrationClosed) { ... }
+  const handleGoogleAuth = () => {
+    setShowGoogleWarning(true);
+  };
 
   return (
     <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl bg-surface-container/95 border border-outline-variant/40 shadow-2xl backdrop-blur-xl relative z-10">
+      <Modal
+        isOpen={showGoogleWarning}
+        onClose={() => setShowGoogleWarning(false)}
+        title="Notice"
+        description="New account creation via Google is disabled. Only existing participants can sign in."
+      >
+        <div className="flex flex-col gap-3 mt-4">
+          <Button variant="primary" onClick={proceedWithGoogleAuth}>
+            I already have an account, continue
+          </Button>
+          <Button variant="secondary" onClick={() => setShowGoogleWarning(false)}>
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+
       {/* Header */}
       <div className="flex flex-col items-center text-center mb-6">
         <h1 className="text-2xl font-bold font-headline text-on-surface">
@@ -198,10 +214,6 @@ function AuthForm() {
         </svg>
         Sign In with Google
       </Button>
-      
-      <p className="text-[10px] text-center text-outline/70 px-4">
-        New account creation via Google is disabled. Only existing participants can sign in.
-      </p>
 
       {/* Footer text — Sign Up link removed (new account creation disabled) */}
       {/* {tab === "register" ? (
