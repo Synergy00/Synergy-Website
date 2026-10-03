@@ -51,6 +51,16 @@ export async function GET(request: NextRequest) {
   
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
+    const createdAt = new Date(user.created_at).getTime();
+    const now = Date.now();
+    
+    // If the account was created less than 30 seconds ago, it's a new sign up via OAuth
+    if (now - createdAt < 30000) {
+      // Registrations are closed! Block new OAuth signups
+      await supabase.auth.signOut();
+      return NextResponse.redirect(`${baseUrl}/auth?error=Registrations+are+closed.+New+accounts+cannot+be+created.`);
+    }
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("id")
