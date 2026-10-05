@@ -270,7 +270,7 @@ export default function Round1Page() {
                   </a>
 
                   <div className="mt-3 p-3 rounded-xl bg-surface-container-low border border-outline-variant/20 text-[11px] text-outline font-mono leading-relaxed">
-                    📂 File name format: &nbsp;<span className="text-primary font-bold">teamname.pptx</span>
+                    📂 File name format: &nbsp;<span className="text-primary font-bold">teamname-team leader.pptx</span>
                   </div>
                 </div>
 
