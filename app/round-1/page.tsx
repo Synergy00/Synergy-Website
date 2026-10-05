@@ -36,7 +36,7 @@ const PPT_TEMPLATE_URL = "https://drive.google.com/drive/folders/1uoxwbjFep0hgwK
 
 const SUBMISSION_GUIDELINES = [
   "Upload your PPT/PDF file to the shared Google Drive folder above using your team's Google account.",
-  "📂 File name format: Team name - team leader name.PPTX",
+  "📂 File name format: Team name - team leader name.pptx",
   "Once uploaded, your submission is considered complete. You can update your file in the drive folder as many times as you want before the deadline.",
   "Only the latest file in the folder at the time of the deadline will be evaluated by the judges.",
 ];
