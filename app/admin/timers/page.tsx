@@ -242,7 +242,7 @@ export default function AdminTimersPage() {
 
               {/* Title */}
               <h2 className={`
-                ${cormorant.className} font-bold text-primary tracking-widest uppercase mb-4 text-center
+                ${cormorant.className} font-bold text-primary tracking-widest uppercase mb-4 text-center lining-nums
                 ${isFullscreen ? "text-5xl md:text-7xl mb-16 md:mb-20 -translate-y-8 md:-translate-y-12" : "text-3xl"}
               `}>
                 Protohack - Round 2
