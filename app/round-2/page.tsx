@@ -150,7 +150,7 @@ export default function Round2Page() {
           </div>
         ) : (
           /* Unlocked Round 2 Finalist View */
-          <div className="space-y-8 animate-in fade-in duration-300">
+          <div className="space-y-6 animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
@@ -174,8 +174,10 @@ export default function Round2Page() {
             </div>
 
             {/* Active Server Countdown Clocks */}
-            <div className="flex justify-center transform scale-125 sm:scale-150 my-10">
-              <ServerClockRenderer placement="round_2" />
+            <div className="flex justify-center py-4">
+              <div className="transform scale-125 sm:scale-150">
+                <ServerClockRenderer placement="round_2" />
+              </div>
             </div>
 
             {/* Congratulations & Direct Club Entry Banner */}
@@ -294,7 +296,7 @@ export default function Round2Page() {
             </div>
 
             {/* What 'Finishable / Complete' Means in Round 2 */}
-            <div className="p-6 sm:p-8 rounded-2xl bg-surface-container/90 border border-outline-variant/30">
+            <div className="p-5 sm:p-6 rounded-2xl bg-surface-container/90 border border-outline-variant/30">
               <div className="mb-6">
                 <span className="text-xs uppercase font-headline font-bold tracking-widest text-primary">
                   DELIVERABLE STANDARD
