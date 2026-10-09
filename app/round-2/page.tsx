@@ -93,13 +93,6 @@ export default function Round2Page() {
           if ((membership as any).teams?.problem_statement_id) {
             setActivePs(getProblemStatementById((membership as any).teams.problem_statement_id) || null);
           }
-          if ((membership as any).teams?.status === "shortlisted") {
-            setIsShortlisted(true);
-          } else {
-            setIsShortlisted(false);
-          }
-        } else {
-          setIsShortlisted(false);
         }
       } catch {
         setIsShortlisted(false);
@@ -118,7 +111,7 @@ export default function Round2Page() {
     );
   }
 
-  const isUnlocked = isShortlisted && round2Open;
+  const isUnlocked = round2Open && !!team;
 
   return (
     <div className="min-h-screen bg-surface text-on-surface relative overflow-x-hidden flex">
