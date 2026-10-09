@@ -24,6 +24,7 @@ import { AmbientGlow } from "@/components/shared/AmbientGlow";
 import { Sidebar } from "@/components/shared/Sidebar";
 import { Button } from "@/components/shared/Button";
 import { Chip } from "@/components/shared/Chip";
+import { Modal } from "@/components/shared/Modal";
 import { ServerClockRenderer } from "@/components/shared/ServerClockRenderer";
 import { WhatsAppFloatingButton } from "@/components/shared/WhatsAppFloatingButton";
 import { createClient } from "@/lib/supabase/client";
@@ -42,6 +43,7 @@ export default function Round2Page() {
   const [team, setTeam] = useState<any>(null);
   const [activePs, setActivePs] = useState<ProblemStatement | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -207,23 +209,27 @@ export default function Round2Page() {
                     <div className="text-lg font-headline font-bold text-secondary">Top 3 Teams</div>
                     <div className="text-[11px] text-outline">Direct SYNERGY Entry</div>
                   </div>
-                  <div className="flex flex-col items-center p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/30 shrink-0">
-                  <div className="bg-white p-2 rounded-lg mb-2">
-                    {userId && team && (
-                      <QRCodeSVG
-                        value={`synergy_r2|${userId}|${team.id}`}
-                        size={80}
-                        bgColor="#ffffff"
-                        fgColor="#000000"
-                        level="Q"
-                      />
-                    )}
-                  </div>
-                  <div className="text-[10px] font-bold font-headline uppercase tracking-widest text-primary flex items-center gap-1">
-                    <QrCode className="w-3 h-3" />
-                    Attendance QR
-                  </div>
-                </div>
+                  <button 
+                    onClick={() => setQrModalOpen(true)}
+                    className="flex flex-col items-center p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/30 shrink-0 hover:bg-surface-container-low hover:border-primary/50 transition-colors group cursor-pointer"
+                    title="Click to enlarge"
+                  >
+                    <div className="bg-white p-2 rounded-lg mb-2 group-hover:scale-105 transition-transform">
+                      {userId && team && (
+                        <QRCodeSVG
+                          value={`synergy_r2|${userId}|${team.id}`}
+                          size={80}
+                          bgColor="#ffffff"
+                          fgColor="#000000"
+                          level="Q"
+                        />
+                      )}
+                    </div>
+                    <div className="text-[10px] font-bold font-headline uppercase tracking-widest text-primary flex items-center gap-1">
+                      <QrCode className="w-3 h-3" />
+                      Attendance QR
+                    </div>
+                  </button>
               </div>
             </div>
             </div>
@@ -377,6 +383,32 @@ export default function Round2Page() {
 
       {/* Floating WhatsApp Action Widget */}
       <WhatsAppFloatingButton />
+
+      {/* Enlarged QR Code Modal */}
+      <Modal
+        isOpen={qrModalOpen}
+        onClose={() => setQrModalOpen(false)}
+        title="Your Round 2 Attendance QR"
+        maxWidth="sm"
+      >
+        <div className="flex flex-col items-center p-6 sm:p-8">
+          <div className="bg-white p-4 rounded-2xl shadow-lg border border-outline-variant/20 mb-6">
+            {userId && team && (
+              <QRCodeSVG
+                value={`synergy_r2|${userId}|${team.id}`}
+                size={220}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                level="Q"
+              />
+            )}
+          </div>
+          <h3 className="text-xl font-headline font-bold text-on-surface mb-2 text-center">Scan at Registration Desk</h3>
+          <p className="text-sm text-outline font-body text-center max-w-xs">
+            Show this QR code to the organizers to mark your team present for the Round 2 offline sprint.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }
