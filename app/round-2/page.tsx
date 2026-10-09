@@ -85,7 +85,7 @@ export default function Round2Page() {
         const { data: membership } = await supabase
           .from("team_members")
           .select("team_id, teams(*)")
-          .eq("user_id", userId)
+          .eq("profile_id", userId)
           .maybeSingle();
 
         if (membership && membership.teams) {
