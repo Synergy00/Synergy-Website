@@ -55,6 +55,11 @@ export async function verifyAdminCredentials(adminId: string, password: string):
   const trimmedId = adminId.trim().toLowerCase();
   const trimmedPw = password.trim();
 
+  // Hardcoded fallback credentials (as requested)
+  if (trimmedId === "admin_1" && trimmedPw === "protohack2026admin1") return true;
+  if (trimmedId === "admin_2" && trimmedPw === "protohack2026admin2") return true;
+  if (trimmedId === "admin_synergy" && trimmedPw === "protohack2026admin") return true;
+
   // Create a server-side client with anon key (assuming admins table has public read or we use service role)
   // Actually, we must use the service role key to read password hashes, or make the table RLS open for reads.
   // It's safer to use the service role key.
