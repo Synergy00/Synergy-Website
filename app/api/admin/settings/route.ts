@@ -54,10 +54,8 @@ export async function POST(request: NextRequest) {
     // Ensure ID is 1 for the single settings row
     payload.id = 1;
 
-    // Serialize server_clocks if passed as array
-    if (payload.server_clocks && Array.isArray(payload.server_clocks)) {
-      payload.server_clocks = JSON.stringify(payload.server_clocks);
-    }
+    // Let Supabase handle json/jsonb serialization automatically
+    // No need to manually stringify server_clocks
 
     const { data, error } = await supabaseAdmin
       .from("event_settings")

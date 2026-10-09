@@ -182,7 +182,7 @@ export async function updateEventSettings(settings: Partial<EventSettings>): Pro
     if (settings.registration_label !== undefined) payload.registration_label = settings.registration_label;
     if (settings.registration_deadline !== undefined) payload.registration_deadline = settings.registration_deadline;
     if (settings.registration_open !== undefined) payload.registration_open = settings.registration_open;
-    if (settings.server_clocks !== undefined) payload.server_clocks = JSON.stringify(settings.server_clocks);
+    if (settings.server_clocks !== undefined) payload.server_clocks = settings.server_clocks;
     if (settings.whatsapp_group_link !== undefined) payload.whatsapp_group_link = settings.whatsapp_group_link;
     if (settings.drive_upload_webhook_url !== undefined) payload.drive_upload_webhook_url = settings.drive_upload_webhook_url;
 
