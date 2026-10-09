@@ -28,7 +28,8 @@ import { ServerClockRenderer } from "@/components/shared/ServerClockRenderer";
 import { WhatsAppFloatingButton } from "@/components/shared/WhatsAppFloatingButton";
 import { createClient } from "@/lib/supabase/client";
 import { getProblemStatementById, ProblemStatement } from "@/lib/problem-statements";
-import { BookOpen } from "lucide-react";
+import { BookOpen, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 
 export default function Round2Page() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function Round2Page() {
   const [userProfile, setUserProfile] = useState<{ fullName: string; participantId: string } | null>(null);
   const [team, setTeam] = useState<any>(null);
   const [activePs, setActivePs] = useState<ProblemStatement | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -54,7 +56,8 @@ export default function Round2Page() {
           router.push("/auth");
           return;
         }
-        const userId = user.id;
+        const uid = user.id;
+        setUserId(uid);
 
         // Fetch settings
         const { data: settings } = await supabase
@@ -72,7 +75,7 @@ export default function Round2Page() {
         const { data: profile } = await supabase
           .from("profiles")
           .select("full_name, participant_id")
-          .eq("id", userId)
+          .eq("id", uid)
           .single();
 
         if (profile) {
@@ -85,7 +88,7 @@ export default function Round2Page() {
         const { data: membership } = await supabase
           .from("team_members")
           .select("team_id, teams(*)")
-          .eq("profile_id", userId)
+          .eq("profile_id", uid)
           .maybeSingle();
 
         if (membership && membership.teams) {
@@ -198,10 +201,28 @@ export default function Round2Page() {
                     </p>
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-surface-container-lowest/80 border border-secondary/50 text-center shrink-0 w-full md:w-auto">
-                  <Award className="w-8 h-8 text-secondary mx-auto mb-1" />
-                  <div className="text-lg font-headline font-bold text-secondary">Top 3 Teams</div>
-                  <div className="text-[11px] text-outline">Direct SYNERGY Entry</div>
+                <div className="flex items-center gap-4 shrink-0 w-full md:w-auto">
+                  <div className="p-4 rounded-xl bg-surface-container-lowest/80 border border-secondary/50 text-center flex-1">
+                    <Award className="w-8 h-8 text-secondary mx-auto mb-1" />
+                    <div className="text-lg font-headline font-bold text-secondary">Top 3 Teams</div>
+                    <div className="text-[11px] text-outline">Direct SYNERGY Entry</div>
+                  </div>
+                  <div className="flex flex-col items-center p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/30 shrink-0">
+                  <div className="bg-white p-2 rounded-lg mb-2">
+                    {userId && team && (
+                      <QRCodeSVG
+                        value={`synergy_r2|${userId}|${team.id}`}
+                        size={80}
+                        bgColor="#ffffff"
+                        fgColor="#000000"
+                        level="Q"
+                      />
+                    )}
+                  </div>
+                  <div className="text-[10px] font-bold font-headline uppercase tracking-widest text-primary flex items-center gap-1">
+                    <QrCode className="w-3 h-3" />
+                    Attendance QR
+                  </div>
                 </div>
               </div>
             </div>

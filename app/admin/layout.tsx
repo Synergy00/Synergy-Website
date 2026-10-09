@@ -31,6 +31,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Participants", href: "/admin/participants", icon: Users },
     { name: "Teams Directory", href: "/admin/teams", icon: Layers },
     { name: "Round 2 Shortlisting", href: "/admin/shortlisting", icon: Trophy },
+    { name: "Round 2 Attendance", href: "/admin/round2-attendance", icon: CheckCircle2 },
     { name: "Event Controls", href: "/admin/event-controls", icon: Sliders },
   ];
 
