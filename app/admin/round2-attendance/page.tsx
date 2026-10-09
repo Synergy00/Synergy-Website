@@ -17,6 +17,7 @@ import {
   UserX,
   Building2,
   ScanLine,
+  Save
 } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { Chip } from "@/components/shared/Chip";
@@ -50,10 +51,14 @@ export default function Round2AttendancePage() {
   const [loading, setLoading] = useState(true);
   const [scannerActive, setScannerActive] = useState(false);
   const [scanResult, setScanResult] = useState<{ type: "success" | "already" | "error"; message: string; name?: string; team?: string } | null>(null);
-  const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
+
   const [scanning, setScanning] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const scannerRef = useRef<any>(null);
+
+  const [pendingAttendance, setPendingAttendance] = useState<Record<string, boolean>>({});
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSavingBulk, setIsSavingBulk] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -62,6 +67,11 @@ export default function Round2AttendancePage() {
       const data = await res.json();
       setAttendance(data.attendance || []);
       setTeams(data.teams || []);
+      
+      const initial: Record<string, boolean> = {};
+      (data.attendance || []).forEach((a: any) => { initial[a.profile_id] = true; });
+      setPendingAttendance(initial);
+      setHasUnsavedChanges(false);
     } catch {
       console.error("Failed to load attendance data");
     } finally {
@@ -160,13 +170,56 @@ export default function Round2AttendancePage() {
     }
   };
 
-  const toggleTeam = (id: string) => {
-    setExpandedTeams(prev => {
-      const n = new Set(prev);
-      n.has(id) ? n.delete(id) : n.add(id);
-      return n;
-    });
+  const handleTogglePending = (profileId: string) => {
+    setPendingAttendance(prev => ({
+      ...prev,
+      [profileId]: !prev[profileId]
+    }));
+    setHasUnsavedChanges(true);
   };
+
+  const handleBulkSave = async () => {
+    setIsSavingBulk(true);
+    const originalSet = new Set(attendance.map(a => a.profile_id));
+    const promises: Promise<any>[] = [];
+
+    teams.forEach(team => {
+      team.team_members.forEach(member => {
+        const wasPresent = originalSet.has(member.profile_id);
+        const isNowPresent = pendingAttendance[member.profile_id];
+
+        if (isNowPresent && !wasPresent) {
+          promises.push(
+            fetch("/api/admin/round2-attendance", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ profile_id: member.profile_id, team_id: team.id }),
+            })
+          );
+        } else if (!isNowPresent && wasPresent) {
+          promises.push(
+            fetch("/api/admin/round2-attendance", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ profile_id: member.profile_id }),
+            })
+          );
+        }
+      });
+    });
+
+    try {
+      await Promise.all(promises);
+      await loadData();
+      alert("Attendance updated successfully!");
+    } catch (err) {
+      alert("Some updates failed. Please verify the table.");
+      await loadData();
+    } finally {
+      setIsSavingBulk(false);
+    }
+  };
+
 
   const attendedProfileIds = new Set(attendance.map(a => a.profile_id));
   const totalShortlisted = teams.reduce((acc, t) => acc + t.team_members.length, 0);
@@ -278,14 +331,26 @@ export default function Round2AttendancePage() {
         })}
       </div>
 
-      {/* Team-wise Breakdown */}
+      {/* Team-wise Breakdown Table */}
       <div className="p-6 sm:p-8 rounded-2xl bg-surface-container/90 border border-outline-variant/30 shadow-2xl backdrop-blur-xl">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-lg font-headline font-bold text-on-surface">Team-wise Attendance Breakdown</h2>
-            <p className="text-xs text-outline font-body mt-0.5">Click any team to see individual member attendance</p>
+            <h2 className="text-lg font-headline font-bold text-on-surface">Manual Attendance Table</h2>
+            <p className="text-xs text-outline font-body mt-0.5">Toggle P (Present) or A (Absent) and click save</p>
           </div>
-          <Chip variant="lavender">{teams.length} Teams</Chip>
+          <div className="flex items-center gap-4">
+            <Chip variant="lavender">{teams.length} Teams</Chip>
+            {hasUnsavedChanges && (
+              <Button
+                variant="primary"
+                onClick={handleBulkSave}
+                disabled={isSavingBulk}
+                leftIcon={isSavingBulk ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              >
+                {isSavingBulk ? "Saving..." : "Save Attendance"}
+              </Button>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -294,121 +359,63 @@ export default function Round2AttendancePage() {
           </div>
         ) : teams.length === 0 ? (
           <div className="text-center py-12 text-outline text-sm font-body">
-            No shortlisted teams found. Shortlist teams first from the Shortlisting page.
+            No shortlisted teams found.
           </div>
         ) : (
-          <div className="space-y-3">
-            {teams.map(team => {
-              const memberCount = team.team_members.length;
-              const presentCount = team.team_members.filter(m => attendedProfileIds.has(m.profile_id)).length;
-              const absentCount = memberCount - presentCount;
-              const isExpanded = expandedTeams.has(team.id);
-              const allPresent = presentCount === memberCount;
-              const allAbsent = presentCount === 0;
-
-              return (
-                <div key={team.id} className={`rounded-2xl border overflow-hidden transition-all ${
-                  allPresent ? "border-success/40 bg-success-container/10" :
-                  allAbsent ? "border-error/30 bg-error-container/5" :
-                  "border-outline-variant/30 bg-surface-container-low"
-                }`}>
-                  <button
-                    onClick={() => toggleTeam(team.id)}
-                    className="w-full p-4 flex items-center justify-between text-left gap-3"
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${allPresent ? "bg-success" : allAbsent ? "bg-error" : "bg-primary animate-pulse"}`} />
-                      <span className="font-headline font-bold text-sm text-on-surface truncate">{team.name}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-headline shrink-0 ${
-                        allPresent ? "bg-success/20 text-success" :
-                        allAbsent ? "bg-error/20 text-error" :
-                        "bg-primary/20 text-primary"
-                      }`}>
-                        {allPresent ? "FULL" : allAbsent ? "ABSENT" : "PARTIAL"}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-4 shrink-0">
-                      <div className="flex items-center gap-3 text-xs font-body">
-                        <span className="flex items-center gap-1 text-success font-semibold">
-                          <UserCheck className="w-3.5 h-3.5" /> {presentCount}
-                        </span>
-                        <span className="flex items-center gap-1 text-error font-semibold">
-                          <UserX className="w-3.5 h-3.5" /> {absentCount}
-                        </span>
-                        <span className="text-outline text-[11px]">/ {memberCount} members</span>
-                      </div>
-
-                      {/* Progress bar */}
-                      <div className="hidden sm:flex w-20 h-1.5 rounded-full bg-surface-container-highest overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-success transition-all"
-                          style={{ width: memberCount > 0 ? `${(presentCount / memberCount) * 100}%` : "0%" }}
-                        />
-                      </div>
-
-                      {isExpanded ? <ChevronUp className="w-4 h-4 text-outline" /> : <ChevronDown className="w-4 h-4 text-outline" />}
-                    </div>
-                  </button>
-
-                  {isExpanded && (
-                    <div className="px-4 pb-4 pt-1 border-t border-outline-variant/20 animate-in fade-in duration-200">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {team.team_members.map(member => {
-                          const isPresent = attendedProfileIds.has(member.profile_id);
-                          const record = attendance.find(a => a.profile_id === member.profile_id);
-                          return (
-                            <div
-                              key={member.profile_id}
-                              className={`flex items-center justify-between p-3 rounded-xl border ${
-                                isPresent ? "bg-success-container/15 border-success/30" : "bg-surface-container-lowest border-outline-variant/20"
-                              }`}
-                            >
-                              <div className="flex items-center gap-2.5">
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${isPresent ? "bg-success/20" : "bg-surface-container-high"}`}>
-                                  {isPresent ? <CheckCircle2 className="w-3.5 h-3.5 text-success" /> : <XCircle className="w-3.5 h-3.5 text-error/60" />}
-                                </div>
-                                <div>
-                                  <div className="text-xs font-semibold text-on-surface font-headline">
-                                    {member.profiles?.full_name || "Unknown"}
-                                    {member.role === "lead" && <span className="ml-1.5 text-[9px] text-secondary font-bold">LEAD</span>}
-                                  </div>
-                                  <div className="text-[10px] text-outline font-mono">{member.profiles?.participant_id || ""}</div>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {isPresent && record && (
-                                  <span className="text-[10px] text-success font-mono">
-                                    {new Date(record.scanned_at).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" })}
-                                  </span>
-                                )}
-                                {isPresent && (
-                                  <button
-                                    onClick={() => handleDeleteAttendance(member.profile_id)}
-                                    className="p-1 rounded-lg text-outline hover:text-error hover:bg-error-container/20 transition-colors"
-                                    title="Undo attendance"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                )}
-                                {!isPresent && (
-                                  <button
-                                    onClick={() => handleManualAttendance(member.profile_id, team.id)}
-                                    className="px-2 py-1 text-[10px] font-bold rounded bg-success/10 text-success border border-success/20 hover:bg-success/20 transition-colors"
-                                  >
-                                    MARK PRESENT
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr className="border-b border-outline-variant/30 text-xs text-outline font-headline font-bold uppercase tracking-wider">
+                  <th className="py-4 px-4">Team</th>
+                  <th className="py-4 px-4">Member Name</th>
+                  <th className="py-4 px-4">Participant ID</th>
+                  <th className="py-4 px-4 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm font-body">
+                {teams.flatMap((team, tIdx) => team.team_members.map((member, i) => {
+                  const isPendingPresent = !!pendingAttendance[member.profile_id];
+                  const rowClass = i === team.team_members.length - 1 
+                    ? "border-b border-outline-variant/30" 
+                    : "border-b border-outline-variant/10";
+                    
+                  return (
+                    <tr key={member.profile_id} className={`${rowClass} hover:bg-surface-container-highest/50 transition-colors`}>
+                      <td className="py-3 px-4 font-headline font-bold text-on-surface">
+                        {i === 0 ? team.name : ""}
+                      </td>
+                      <td className="py-3 px-4 flex items-center gap-2">
+                        {member.profiles?.full_name || "Unknown"} 
+                        {member.role === "lead" && <span className="text-[9px] bg-secondary/20 text-secondary px-1.5 py-0.5 rounded font-bold">LEAD</span>}
+                      </td>
+                      <td className="py-3 px-4 font-mono text-outline text-xs">
+                        {member.profiles?.participant_id || ""}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex justify-center items-center gap-1">
+                          <button
+                            onClick={() => handleTogglePending(member.profile_id)}
+                            className={`px-4 py-1.5 text-xs font-bold rounded-l-lg transition-colors border ${
+                              isPendingPresent ? "bg-success/20 text-success border-success/40" : "bg-surface-container-high text-outline border-outline-variant/30 hover:text-on-surface"
+                            }`}
+                          >
+                            P
+                          </button>
+                          <button
+                            onClick={() => handleTogglePending(member.profile_id)}
+                            className={`px-4 py-1.5 text-xs font-bold rounded-r-lg transition-colors border ${
+                              !isPendingPresent ? "bg-error/20 text-error border-error/40" : "bg-surface-container-high text-outline border-outline-variant/30 hover:text-on-surface"
+                            }`}
+                          >
+                            A
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
