@@ -27,6 +27,8 @@ import { Chip } from "@/components/shared/Chip";
 import { ServerClockRenderer } from "@/components/shared/ServerClockRenderer";
 import { WhatsAppFloatingButton } from "@/components/shared/WhatsAppFloatingButton";
 import { createClient } from "@/lib/supabase/client";
+import { getProblemStatementById, ProblemStatement } from "@/lib/problem-statements";
+import { BookOpen } from "lucide-react";
 
 export default function Round2Page() {
   const router = useRouter();
@@ -37,6 +39,7 @@ export default function Round2Page() {
   const [round1Unlocked, setRound1Unlocked] = useState(false);
   const [userProfile, setUserProfile] = useState<{ fullName: string; participantId: string } | null>(null);
   const [team, setTeam] = useState<any>(null);
+  const [activePs, setActivePs] = useState<ProblemStatement | null>(null);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -87,6 +90,9 @@ export default function Round2Page() {
 
         if (membership && membership.teams) {
           setTeam(membership.teams);
+          if (membership.teams.problem_statement_id) {
+            setActivePs(getProblemStatementById(membership.teams.problem_statement_id) || null);
+          }
           if ((membership as any).teams?.status === "shortlisted") {
             setIsShortlisted(true);
           } else {
@@ -175,7 +181,7 @@ export default function Round2Page() {
             </div>
 
             {/* Active Server Countdown Clocks */}
-            <div className="flex justify-center">
+            <div className="flex justify-center transform scale-125 sm:scale-150 my-10">
               <ServerClockRenderer placement="round_2" />
             </div>
 
@@ -204,6 +210,49 @@ export default function Round2Page() {
                 </div>
               </div>
             </div>
+
+            {/* ── Problem Statement Full Details ────────────────────── */}
+            {activePs && (
+              <div className="p-6 sm:p-8 rounded-2xl bg-surface-container/90 border border-outline-variant/30 backdrop-blur-xl">
+                <h2 className="text-lg font-headline font-bold text-on-surface mb-4 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-primary" />
+                  Your Problem Statement Details
+                </h2>
+                <div className="p-5 rounded-xl border border-primary/20 bg-primary-container/5 space-y-4">
+                  <div>
+                    <div className="text-xs font-headline font-bold tracking-widest text-primary mb-1 uppercase">{activePs.domain}</div>
+                    <h3 className="text-lg font-bold text-on-surface">{activePs.title}</h3>
+                    <p className="text-sm text-outline mt-2 leading-relaxed">{activePs.description}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-xs font-bold text-on-surface font-headline mb-2">Key Deliverables</div>
+                      <ul className="space-y-1.5">
+                        {activePs.keyDeliverables.map((item, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
+                            <span className="text-xs text-outline">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-on-surface font-headline mb-2">Target Audience</div>
+                      <p className="text-xs text-outline">{activePs.targetAudience}</p>
+                      <div className="text-xs font-bold text-on-surface font-headline mt-3 mb-2">Suggested Tech Stack</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {activePs.suggestedTech.map((tech, i) => (
+                          <span key={i} className="px-2 py-0.5 rounded-md bg-surface-container-high border border-outline-variant/30 text-[11px] font-mono text-primary">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Event Day Schedule & Logistics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
