@@ -147,6 +147,19 @@ export default function Round2AttendancePage() {
     await loadData();
   };
 
+  const handleManualAttendance = async (profile_id: string, team_id: string) => {
+    try {
+      await fetch("/api/admin/round2-attendance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile_id, team_id }),
+      });
+      await loadData();
+    } catch {
+      alert("Failed to mark attendance.");
+    }
+  };
+
   const toggleTeam = (id: string) => {
     setExpandedTeams(prev => {
       const n = new Set(prev);
@@ -376,6 +389,14 @@ export default function Round2AttendancePage() {
                                     title="Undo attendance"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                                {!isPresent && (
+                                  <button
+                                    onClick={() => handleManualAttendance(member.profile_id, team.id)}
+                                    className="px-2 py-1 text-[10px] font-bold rounded bg-success/10 text-success border border-success/20 hover:bg-success/20 transition-colors"
+                                  >
+                                    MARK PRESENT
                                   </button>
                                 )}
                               </div>
