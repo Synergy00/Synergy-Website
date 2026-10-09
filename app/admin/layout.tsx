@@ -13,6 +13,7 @@ import {
   X,
   Zap,
   Layers,
+  CheckCircle2,
 } from "lucide-react";
 import { AmbientGlow } from "@/components/shared/AmbientGlow";
 import { cn } from "@/lib/utils";

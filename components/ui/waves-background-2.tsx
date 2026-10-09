@@ -132,18 +132,18 @@ export function ShaderBackground({className}:{className?:string}){
       const follow=1-Math.exp(-12*dt)
       mouseX+=(targetX-mouseX)*follow;mouseY+=(targetY-mouseY)*follow;cursorPresence+=(targetPresence-cursorPresence)*follow
       resizeCanvas()
-      gl.uniform4f(uni.scene,canvas.width,canvas.height,((now-start)/1000)*UNIFORMS.timeScale,UNIFORMS.colorCount)
-      gl.uniform4f(uni.space,UNIFORMS.offsetX,UNIFORMS.offsetY,mouseX,mouseY)
-      gl.uniform4f(uni.cursor,0,UNIFORMS.cursorEffect,UNIFORMS.cursorStrength,UNIFORMS.cursorRadius)
-      gl.drawArrays(gl.TRIANGLES,0,3);requestRender()
+      gl!.uniform4f(uni.scene,canvas!.width,canvas!.height,((now-start)/1000)*UNIFORMS.timeScale,UNIFORMS.colorCount)
+      gl!.uniform4f(uni.space,UNIFORMS.offsetX,UNIFORMS.offsetY,mouseX,mouseY)
+      gl!.uniform4f(uni.cursor,0,UNIFORMS.cursorEffect,UNIFORMS.cursorStrength,UNIFORMS.cursorRadius)
+      gl!.drawArrays(gl!.TRIANGLES,0,3);requestRender()
     }
     requestRender()
     return()=>{
       disposed=true;cancelAnimationFrame(raf);ro.disconnect();io.disconnect()
       document.removeEventListener("visibilitychange",onVC);window.removeEventListener("resize",updateLayout)
-      gl.deleteBuffer(buf);gl.deleteProgram(program)
-      const rt=window.setTimeout(()=>{if(pendingContextReleases.get(canvas)!==rt)return;pendingContextReleases.delete(canvas);gl.getExtension("WEBGL_lose_context")?.loseContext();canvas.width=1;canvas.height=1},0)
-      pendingContextReleases.set(canvas,rt)
+      gl!.deleteBuffer(buf);gl!.deleteProgram(program)
+      const rt=window.setTimeout(()=>{if(pendingContextReleases.get(canvas!)!==rt)return;pendingContextReleases.delete(canvas!);gl!.getExtension("WEBGL_lose_context")?.loseContext();canvas!.width=1;canvas!.height=1},0)
+      pendingContextReleases.set(canvas!,rt)
     }
   },[])
   return <canvas ref={canvasRef} className={className} style={{display:"block",width:"100%",height:"100%"}}/>

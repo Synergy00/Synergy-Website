@@ -226,6 +226,7 @@ export default function Round2Page() {
                 </div>
               </div>
             </div>
+            </div>
 
             {/* ── Problem Statement Full Details ────────────────────── */}
             {activePs && (
