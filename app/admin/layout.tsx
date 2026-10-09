@@ -14,6 +14,7 @@ import {
   Zap,
   Layers,
   CheckCircle2,
+  Clock,
 } from "lucide-react";
 import { AmbientGlow } from "@/components/shared/AmbientGlow";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Round 2 Shortlisting", href: "/admin/shortlisting", icon: Trophy },
     { name: "Round 2 Attendance", href: "/admin/round2-attendance", icon: CheckCircle2 },
     { name: "Event Controls", href: "/admin/event-controls", icon: Sliders },
+    { name: "Server Timers", href: "/admin/timers", icon: Clock },
   ];
 
   const handleLogout = async () => {
