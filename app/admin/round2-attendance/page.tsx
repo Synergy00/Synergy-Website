@@ -281,10 +281,10 @@ export default function Round2AttendancePage() {
           {/* Scanner & result */}
           {scannerActive && (
             <div className="mt-6 flex flex-col sm:flex-row gap-6 items-start">
-              <div className="relative">
-                <div id="qr-reader" className="rounded-2xl overflow-hidden border-2 border-primary/40 shadow-lg" style={{ width: 300, height: 300 }} />
+              <div className="relative w-full max-w-[300px]">
+                <div id="qr-reader" className="rounded-2xl overflow-hidden border-2 border-primary/40 shadow-lg w-full aspect-square" />
                 <div className="absolute top-0 left-0 w-full h-full pointer-events-none flex items-center justify-center">
-                  <div className="w-[200px] h-[200px] border-2 border-primary rounded-xl opacity-60 animate-pulse" />
+                  <div className="w-full max-w-[200px] aspect-square border-2 border-primary rounded-xl opacity-60 animate-pulse" />
                 </div>
                 <div className="absolute top-2 left-2 right-2 flex justify-center">
                   <span className="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 text-[10px] font-bold text-primary font-headline flex items-center gap-1">
