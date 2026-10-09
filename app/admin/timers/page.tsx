@@ -249,7 +249,7 @@ export default function AdminTimersPage() {
               {/* Title */}
               <h2 className={`
                 font-headline font-bold text-primary tracking-widest uppercase mb-4 text-center
-                ${isFullscreen ? "text-4xl md:text-6xl mb-12" : "text-xl"}
+                ${isFullscreen ? "text-4xl md:text-6xl mb-16 md:mb-20 -translate-y-8 md:-translate-y-12" : "text-xl"}
               `}>
                 Protohack - Round 2
               </h2>
