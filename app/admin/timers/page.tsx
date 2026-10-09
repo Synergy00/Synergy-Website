@@ -6,9 +6,9 @@ import { Button } from "@/components/shared/Button";
 import { Input } from "@/components/shared/Input";
 import { ShaderBackground } from "@/components/ui/waves-background-2";
 import Image from "next/image";
-import { Satisfy } from 'next/font/google';
+import { Cormorant } from 'next/font/google';
 
-const satisfy = Satisfy({ subsets: ['latin'], weight: '400' });
+const cormorant = Cormorant({ subsets: ['latin'], weight: '700' });
 
 export default function AdminTimersPage() {
   const [hours, setHours] = useState<number>(0);
@@ -242,7 +242,7 @@ export default function AdminTimersPage() {
 
               {/* Title */}
               <h2 className={`
-                ${satisfy.className} text-primary mb-4 text-center
+                ${cormorant.className} font-bold text-primary tracking-widest uppercase mb-4 text-center
                 ${isFullscreen ? "text-5xl md:text-7xl mb-16 md:mb-20 -translate-y-8 md:-translate-y-12" : "text-3xl"}
               `}>
                 Protohack - Round 2
