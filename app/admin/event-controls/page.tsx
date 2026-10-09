@@ -32,6 +32,7 @@ import { Input } from "@/components/shared/Input";
 import { Modal } from "@/components/shared/Modal";
 import { Chip } from "@/components/shared/Chip";
 import { ServerClockRenderer } from "@/components/shared/ServerClockRenderer";
+import { ShaderBackground } from "@/components/ui/waves-background-2";
 import {
   fetchEventSettings,
   updateEventSettings,
@@ -368,7 +369,65 @@ export default function AdminEventControlsPage() {
         </div>
       )}
 
-      {/* 1. DYNAMIC SERVER CLOCKS MANAGER */}
+      {/* ── LIVE EVENT TIMER HERO ── */}
+      <div className="relative rounded-3xl overflow-hidden border border-outline-variant/30 shadow-2xl" style={{ minHeight: 220 }}>
+        {/* Shader animated background */}
+        <div className="absolute inset-0">
+          <ShaderBackground className="w-full h-full" />
+        </div>
+        {/* Dark overlay so text is readable */}
+        <div className="absolute inset-0 bg-surface/60 backdrop-blur-[2px]" />
+        {/* Content */}
+        <div className="relative z-10 p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-[10px] font-headline font-bold uppercase tracking-widest text-primary/80">Live Event Timer</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-headline font-bold text-on-surface tracking-tight mb-1">
+              Server Countdown Clocks
+            </h2>
+            <p className="text-xs text-outline font-body max-w-md">
+              Deploy real-time countdown timers to any page — Landing, Dashboard, Round 1, or Round 2. Changes broadcast live to all participants.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {["landing_hero", "dashboard", "round_1", "round_2"].map((p) => (
+                <span key={p} className="px-2.5 py-1 rounded-lg bg-primary-container/20 border border-primary/25 text-[10px] font-mono text-primary font-bold">
+                  /{p.replace("_", "-")}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="p-2.5 rounded-xl bg-primary-container/20 border border-primary/30 text-primary">
+                <Timer className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-lg font-mono font-bold text-on-surface">{clocks.length}</div>
+                <div className="text-[10px] text-outline font-body">Active clocks</div>
+              </div>
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={openNewClockModal}
+              leftIcon={<Plus className="w-4 h-4" />}
+            >
+              Create New Timer
+            </Button>
+          </div>
+        </div>
+        {/* Live preview of round_2 clock at bottom if any */}
+        {clocks.some(c => c.is_active && c.placement?.includes("round_2")) && (
+          <div className="relative z-10 border-t border-outline-variant/20 px-8 py-4 flex items-center gap-4">
+            <span className="text-[10px] font-headline font-bold uppercase tracking-widest text-outline shrink-0">Live Preview (Round 2):</span>
+            <ServerClockRenderer placement="round_2" />
+          </div>
+        )}
+      </div>
+
+      {/* ── CONFIGURED CLOCKS MANAGER ── */}
       <div className="p-6 sm:p-8 rounded-2xl bg-surface-container/90 border border-outline-variant/30 shadow-2xl backdrop-blur-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-outline-variant/20">
           <div className="flex items-center gap-3">
