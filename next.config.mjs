@@ -19,7 +19,7 @@ const nextConfig = {
           // Restrict referrer info leakage
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           // Permissions policy (disable unused browser APIs)
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+          { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=(), payment=()" },
           // Content Security Policy — blocks XSS, restricts script sources
           {
             key: "Content-Security-Policy",
