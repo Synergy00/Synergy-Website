@@ -90,8 +90,8 @@ export default function Round2Page() {
 
         if (membership && membership.teams) {
           setTeam(membership.teams);
-          if (membership.teams.problem_statement_id) {
-            setActivePs(getProblemStatementById(membership.teams.problem_statement_id) || null);
+          if ((membership as any).teams?.problem_statement_id) {
+            setActivePs(getProblemStatementById((membership as any).teams.problem_statement_id) || null);
           }
           if ((membership as any).teams?.status === "shortlisted") {
             setIsShortlisted(true);
