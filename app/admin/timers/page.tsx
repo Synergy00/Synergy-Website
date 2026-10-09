@@ -229,8 +229,6 @@ export default function AdminTimersPage() {
     setTimeout(() => setSaveSuccess(null), 3000);
   };
 
-  };
-
   return (
     <div className="space-y-8 max-w-5xl">
       {/* Header */}
