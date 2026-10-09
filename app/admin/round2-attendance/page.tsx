@@ -83,54 +83,62 @@ export default function Round2AttendancePage() {
     loadData();
   }, []);
 
+  const scanningRef = useRef(false);
+
   const startScanner = useCallback(async () => {
     setScannerActive(true);
     setScanResult(null);
-    try {
-      const { Html5Qrcode } = await import("html5-qrcode");
-      const scanner = new Html5Qrcode("qr-reader");
-      scannerRef.current = scanner;
-      await scanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 280, height: 280 } },
-        async (decodedText: string) => {
-          if (scanning) return;
-          setScanning(true);
-          // Parse QR: synergy_r2|profile_id|team_id|participantId
-          const parts = decodedText.split("|");
-          if (parts[0] !== "synergy_r2" || parts.length < 3) {
-            setScanResult({ type: "error", message: "Invalid QR code. Not a SYNERGY Round 2 badge." });
-            setScanning(false);
-            return;
-          }
-          const [, profile_id, team_id] = parts;
-          try {
-            const res = await fetch("/api/admin/round2-attendance", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ profile_id, team_id }),
-            });
-            const data = await res.json();
-            if (data.already_marked) {
-              setScanResult({ type: "already", message: "Already marked present!", name: data.record?.full_name });
-            } else if (data.success) {
-              setScanResult({ type: "success", message: "Attendance marked!", name: data.record?.full_name, team: data.record?.team_name });
-              await loadData();
-            } else {
-              setScanResult({ type: "error", message: data.error || "Failed to mark attendance." });
+    scanningRef.current = false;
+    
+    // Give React a tick to render the #qr-reader div
+    setTimeout(async () => {
+      try {
+        const { Html5Qrcode } = await import("html5-qrcode");
+        const scanner = new Html5Qrcode("qr-reader");
+        scannerRef.current = scanner;
+        await scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 280, height: 280 } },
+          async (decodedText: string) => {
+            if (scanningRef.current) return;
+            scanningRef.current = true;
+            
+            // Parse QR: synergy_r2|profile_id|team_id|participantId
+            const parts = decodedText.split("|");
+            if (parts[0] !== "synergy_r2" || parts.length < 3) {
+              setScanResult({ type: "error", message: "Invalid QR code. Not a SYNERGY Round 2 badge." });
+              setTimeout(() => { scanningRef.current = false; }, 2000);
+              return;
             }
-          } catch {
-            setScanResult({ type: "error", message: "Network error. Try again." });
-          }
-          setTimeout(() => setScanning(false), 2000);
-        },
-        () => {} // ignore decode errors
-      );
-    } catch (err) {
-      console.error("Scanner error:", err);
-      setScannerActive(false);
-    }
-  }, [scanning]);
+            const [, profile_id, team_id] = parts;
+            try {
+              const res = await fetch("/api/admin/round2-attendance", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ profile_id, team_id }),
+              });
+              const data = await res.json();
+              if (data.already_marked) {
+                setScanResult({ type: "already", message: "Already marked present!", name: data.record?.full_name });
+              } else if (data.success) {
+                setScanResult({ type: "success", message: "Attendance marked!", name: data.record?.full_name, team: data.record?.team_name });
+                await loadData();
+              } else {
+                setScanResult({ type: "error", message: data.error || "Failed to mark attendance." });
+              }
+            } catch {
+              setScanResult({ type: "error", message: "Network error. Try again." });
+            }
+            setTimeout(() => { scanningRef.current = false; }, 2000);
+          },
+          () => {} // ignore decode errors
+        );
+      } catch (err) {
+        console.error("Scanner error:", err);
+        setScannerActive(false);
+      }
+    }, 100); // 100ms delay to ensure DOM is ready
+  }, []);
 
   const stopScanner = useCallback(async () => {
     try {
