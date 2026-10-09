@@ -6,6 +6,9 @@ import { Button } from "@/components/shared/Button";
 import { Input } from "@/components/shared/Input";
 import { ShaderBackground } from "@/components/ui/waves-background-2";
 import Image from "next/image";
+import { Caveat } from 'next/font/google';
+
+const caveat = Caveat({ subsets: ['latin'], weight: '700' });
 
 export default function AdminTimersPage() {
   const [hours, setHours] = useState<number>(0);
@@ -239,8 +242,8 @@ export default function AdminTimersPage() {
 
               {/* Title */}
               <h2 className={`
-                font-body font-semibold text-primary tracking-[0.2em] uppercase mb-4 text-center
-                ${isFullscreen ? "text-4xl md:text-6xl mb-16 md:mb-20 -translate-y-8 md:-translate-y-12" : "text-xl"}
+                ${caveat.className} text-primary mb-4 text-center
+                ${isFullscreen ? "text-5xl md:text-7xl mb-16 md:mb-20 -translate-y-8 md:-translate-y-12" : "text-3xl"}
               `}>
                 Protohack - Round 2
               </h2>
