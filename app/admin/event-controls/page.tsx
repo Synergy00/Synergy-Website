@@ -31,8 +31,6 @@ import { Button } from "@/components/shared/Button";
 import { Input } from "@/components/shared/Input";
 import { Modal } from "@/components/shared/Modal";
 import { Chip } from "@/components/shared/Chip";
-import { ServerClockRenderer } from "@/components/shared/ServerClockRenderer";
-import { ShaderBackground } from "@/components/ui/waves-background-2";
 import {
   fetchEventSettings,
   updateEventSettings,
@@ -370,13 +368,7 @@ export default function AdminEventControlsPage() {
       )}
 
       {/* ── LIVE EVENT TIMER HERO ── */}
-      <div className="relative rounded-3xl overflow-hidden border border-outline-variant/30 shadow-2xl" style={{ minHeight: 220 }}>
-        {/* Shader animated background */}
-        <div className="absolute inset-0">
-          <ShaderBackground className="w-full h-full" />
-        </div>
-        {/* Dark overlay so text is readable */}
-        <div className="absolute inset-0 bg-surface/60 backdrop-blur-[2px]" />
+      <div className="relative rounded-3xl overflow-hidden border border-outline-variant/30 shadow-2xl bg-surface-container-high" style={{ minHeight: 180 }}>
         {/* Content */}
         <div className="relative z-10 p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
@@ -418,13 +410,6 @@ export default function AdminEventControlsPage() {
             </Button>
           </div>
         </div>
-        {/* Live preview of round_2 clock at bottom if any */}
-        {clocks.some(c => c.is_active && c.placement?.includes("round_2")) && (
-          <div className="relative z-10 border-t border-outline-variant/20 px-8 py-4 flex items-center gap-4">
-            <span className="text-[10px] font-headline font-bold uppercase tracking-widest text-outline shrink-0">Live Preview (Round 2):</span>
-            <ServerClockRenderer placement="round_2" />
-          </div>
-        )}
       </div>
 
       {/* ── CONFIGURED CLOCKS MANAGER ── */}
