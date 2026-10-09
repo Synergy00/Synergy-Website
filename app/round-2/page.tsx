@@ -247,60 +247,7 @@ export default function Round2Page() {
               </div>
             )}
 
-            {/* Event Day Schedule & Logistics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 rounded-2xl bg-surface-container/90 border border-outline-variant/30">
-                <div className="flex items-center gap-2 mb-4 font-headline font-bold text-base text-primary">
-                  <Clock className="w-5 h-5" /> Schedule of October 10
-                </div>
-                <div className="space-y-3 text-xs sm:text-sm font-body text-on-surface-variant">
-                  <div className="flex justify-between border-b border-outline-variant/20 pb-2">
-                    <span>09:00 AM</span>
-                    <span className="font-semibold text-on-surface">Reporting & Desk Allocation</span>
-                  </div>
-                  <div className="flex justify-between border-b border-outline-variant/20 pb-2">
-                    <span>09:30 AM</span>
-                    <span className="font-semibold text-primary">Common Problem Statement Released</span>
-                  </div>
-                  <div className="flex justify-between border-b border-outline-variant/20 pb-2">
-                    <span>11:30 AM</span>
-                    <span className="font-semibold text-secondary">Surprise Card Feature Reveal</span>
-                  </div>
-                  <div className="flex justify-between border-b border-outline-variant/20 pb-2">
-                    <span>01:00 PM – 01:30 PM</span>
-                    <span className="font-semibold text-on-surface">Build Lock & Code Freeze</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>02:30 PM onwards</span>
-                    <span className="font-semibold text-success">Live Presentations & Defense</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="p-6 rounded-2xl bg-surface-container/90 border border-outline-variant/30">
-                <div className="flex items-center gap-2 mb-4 font-headline font-bold text-base text-secondary">
-                  <MapPin className="w-5 h-5" /> Venue Logistics & Rules
-                </div>
-                <ul className="space-y-2.5 text-xs sm:text-sm font-body text-on-surface-variant">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
-                    <span>Bring College Physical ID cards for all team members.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
-                    <span>High-speed Wi-Fi and power strips provided at every team desk.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
-                    <span>AI coding assistants permitted; all members must be able to explain code paths.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
-                    <span>Live product defense format: 4-minute presentation demo + 2-minute judge Q&A.</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
 
             {/* Round 2 Official Evaluation Criteria */}
             <div className="p-6 sm:p-8 rounded-2xl bg-surface-container/90 border border-outline-variant/30">
