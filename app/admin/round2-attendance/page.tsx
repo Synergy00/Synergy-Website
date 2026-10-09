@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { Chip } from "@/components/shared/Chip";
-import { ShaderBackground } from "@/components/ui/waves-background-2";
 
 interface AttendanceRecord {
   id: string;
@@ -168,11 +167,7 @@ export default function Round2AttendancePage() {
     <div className="space-y-8 max-w-6xl">
 
       {/* Hero Scanner Section */}
-      <div className="relative rounded-3xl overflow-hidden border border-outline-variant/30 shadow-2xl" style={{ minHeight: 260 }}>
-        <div className="absolute inset-0">
-          <ShaderBackground className="w-full h-full" />
-        </div>
-        <div className="absolute inset-0 bg-surface/65 backdrop-blur-[2px]" />
+      <div className="relative rounded-3xl overflow-hidden border border-outline-variant/30 shadow-2xl bg-surface-container-high" style={{ minHeight: 260 }}>
         <div className="relative z-10 p-8">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div>
