@@ -123,10 +123,7 @@ export default function AdminTimersPage() {
                   type="number"
                   min={0}
                   value={hours || ""}
-                  onChange={(e) => {
-                    setHours(parseInt(e.target.value) || 0);
-                    if (timeLeft === 0) setTimeLeft(parseInt(e.target.value) * 3600 + minutes * 60 + seconds);
-                  }}
+                  onChange={(e) => setHours(parseInt(e.target.value) || 0)}
                   disabled={isRunning || timeLeft > 0}
                   placeholder="00"
                   className="text-center text-xl font-mono"
@@ -139,10 +136,7 @@ export default function AdminTimersPage() {
                   min={0}
                   max={59}
                   value={minutes || ""}
-                  onChange={(e) => {
-                    setMinutes(parseInt(e.target.value) || 0);
-                    if (timeLeft === 0) setTimeLeft(hours * 3600 + parseInt(e.target.value) * 60 + seconds);
-                  }}
+                  onChange={(e) => setMinutes(parseInt(e.target.value) || 0)}
                   disabled={isRunning || timeLeft > 0}
                   placeholder="00"
                   className="text-center text-xl font-mono"
@@ -155,10 +149,7 @@ export default function AdminTimersPage() {
                   min={0}
                   max={59}
                   value={seconds || ""}
-                  onChange={(e) => {
-                    setSeconds(parseInt(e.target.value) || 0);
-                    if (timeLeft === 0) setTimeLeft(hours * 3600 + minutes * 60 + parseInt(e.target.value));
-                  }}
+                  onChange={(e) => setSeconds(parseInt(e.target.value) || 0)}
                   disabled={isRunning || timeLeft > 0}
                   placeholder="00"
                   className="text-center text-xl font-mono"
@@ -259,7 +250,7 @@ export default function AdminTimersPage() {
                 font-mono font-bold text-on-surface leading-none drop-shadow-2xl
                 ${isFullscreen ? "text-[18vw]" : "text-6xl"}
               `}>
-                {displayTime(timeLeft)}
+                {displayTime(timeLeft > 0 || isRunning ? timeLeft : hours * 3600 + minutes * 60 + seconds)}
               </div>
               
               {/* Invisible overlay for exiting fullscreen with Escape info */}
