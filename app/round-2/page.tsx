@@ -116,7 +116,7 @@ export default function Round2Page() {
     );
   }
 
-  const isUnlocked = round2Open && !!team;
+  const isUnlocked = round2Open && !!team && team.status === "shortlisted";
 
   return (
     <div className="min-h-screen bg-surface text-on-surface relative overflow-x-hidden flex">
